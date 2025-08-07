@@ -4,734 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>הכסף שלי</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        /* CSS Reset & General Styles */
-        :root {
-            --main-color: #20c997; /* Default main color */
-            --accent-color: #6f42c1; /* Default accent color */
-            --text-color: #e0e0e0;
-            --background-color: #1a1a2e;
-            --card-background: #16213e;
-            --border-color: #0f3460;
-            --button-hover-bg: #e94560;
-            --danger-color: #e94560;
-            --success-color: #20c997;
-            --warning-color: #ffc107;
-            --info-color: #0dcaf0;
-            --shadow-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .light-theme {
-            --text-color: #333;
-            --background-color: #f0f2f5;
-            --card-background: #ffffff;
-            --border-color: #ddd;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Heebo', sans-serif; /* Default font */
-        }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s, font-family 0.3s;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px var(--shadow-color);
-        }
-
-        header h1 {
-            color: var(--main-color);
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        .header-icons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .header-icons .icon-button {
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            cursor: pointer;
-            color: var(--text-color);
-            transition: color 0.2s;
-        }
-
-        .header-icons .icon-button:hover {
-            color: var(--main-color);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            flex-grow: 1;
-        }
-
-        .card {
-            background-color: var(--card-background);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        h2 {
-            color: var(--main-color);
-            border-bottom: 2px solid var(--main-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-
-        .balance-display {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--success-color);
-            text-align: center;
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: var(--border-color);
-            border-radius: 8px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-color);
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="number"],
-        input[type="date"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            font-size: 1rem;
-            transition: border-color 0.2s, background-color 0.2s;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        input[type="number"]:focus,
-        input[type="date"]:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--main-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.3);
-        }
-
-        .button {
-            display: inline-block;
-            background-color: var(--main-color);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s, transform 0.1s;
-            text-align: center;
-            text-decoration: none;
-            margin-top: 10px;
-        }
-
-        .button:hover {
-            background-color: var(--button-hover-bg);
-            transform: translateY(-2px);
-        }
-
-        .button.secondary {
-            background-color: var(--accent-color);
-        }
-
-        .button.secondary:hover {
-            background-color: #5a2e9e; /* Darker accent */
-        }
-
-        .button.danger {
-            background-color: var(--danger-color);
-        }
-
-        .button.danger:hover {
-            background-color: #c93050;
-        }
-
-        .button.success {
-            background-color: var(--success-color);
-        }
-
-        .button.success:hover {
-            background-color: #1a9670;
-        }
-
-        .button.small-button {
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            margin-top: 0;
-            margin-right: 5px; /* For actions in table/list */
-        }
-
-        .transaction-buttons, .goal-buttons, .filter-buttons, .auth-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: var(--card-background);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap; /* Prevent text wrapping in cells */
-        }
-
-        th {
-            background-color: var(--main-color);
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        tr:nth-child(even) {
-            background-color: rgba(255, 255, 255, 0.03); /* Subtle stripe for dark theme */
-        }
-        .light-theme tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .income {
-            color: var(--success-color);
-            font-weight: bold;
-        }
-
-        .expense {
-            color: var(--danger-color);
-            font-weight: bold;
-        }
-
-        .message {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: bold;
-            display: none; /* Hidden by default */
-        }
-
-        .message.success {
-            background-color: rgba(32, 201, 151, 0.2);
-            color: var(--success-color);
-            border: 1px solid var(--success-color);
-        }
-
-        .message.error {
-            background-color: rgba(233, 69, 96, 0.2);
-            color: var(--danger-color);
-            border: 1px solid var(--danger-color);
-        }
-
-        .goals-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-        }
-
-        .goals-list li {
-            background-color: var(--background-color);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            position: relative;
-            z-index: 1; /* For drag and drop */
-            transition: background-color 0.2s;
-        }
-
-        .goals-list li:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        .light-theme .goals-list li:hover {
-             background-color: #e0e0e0;
-        }
-
-        .goals-list li .goal-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .goals-list li .add-to-goal-input {
-            flex-grow: 1;
-            max-width: 150px;
-        }
-
-        .period-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .summary-item {
-            background-color: var(--background-color);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px var(--shadow-color);
-        }
-
-        .summary-item h3 {
-            color: var(--main-color);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .summary-item span {
-            font-size: 1.8rem;
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-
-        .summary-item.income span { color: var(--success-color); }
-        .summary-item.expense span { color: var(--danger-color); }
-        .summary-item.balance span { color: var(--info-color); }
-
-        .period-summary-report {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            border: 1px solid;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .period-summary-report.good-budget {
-            background-color: rgba(32, 201, 151, 0.2);
-            color: var(--success-color);
-            border-color: var(--success-color);
-        }
-
-        .period-summary-report.warning-budget {
-            background-color: rgba(255, 193, 7, 0.2);
-            color: var(--warning-color);
-            border-color: var(--warning-color);
-        }
-
-        .period-summary-report.bad-budget {
-            background-color: rgba(233, 69, 96, 0.2);
-            color: var(--danger-color);
-            border-color: var(--danger-color);
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-            color: var(--text-color);
-            background-color: var(--card-background);
-            border-top: 1px solid var(--border-color);
-            box-shadow: 0 -2px 10px var(--shadow-color);
-        }
-
-        /* Welcome Page Specific Styles */
-        .welcome-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            flex-grow: 1;
-            padding: 20px;
-        }
-
-        .welcome-page h1 {
-            font-size: 3rem;
-            color: var(--main-color);
-            margin-bottom: 20px;
-        }
-
-        .welcome-page p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            max-width: 600px;
-        }
-
-        .welcome-page .button {
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            min-width: 200px;
-        }
-
-        .auth-section {
-            display: none; /* Hidden by default, shown when user clicks auth button */
-            margin-top: 30px;
-            width: 100%;
-            max-width: 400px; /* Limit width of auth form */
-            text-align: right;
-            padding: 20px;
-            background-color: var(--background-color); /* Lighter background for auth form */
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 10px var(--shadow-color);
-        }
-        .auth-section h2 {
-            border-color: var(--accent-color);
-        }
-
-        /* Settings Modal */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
-            justify-content: center; /* Center content horizontally */
-            align-items: center; /* Center content vertically */
-        }
-
-        .modal-content {
-            background-color: var(--card-background);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px var(--shadow-color);
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            border: 1px solid var(--border-color);
-        }
-
-        .close-button {
-            color: var(--text-color);
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: var(--danger-color);
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .modal-content h2 {
-            margin-top: 0;
-            border-bottom: 2px solid var(--accent-color);
-        }
-
-        .modal-settings-group {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-settings-group:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-
-        .color-picker-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .color-picker-group input[type="color"] {
-            width: 40px;
-            height: 40px;
-            border: none;
-            padding: 0;
-            background: none;
-            cursor: pointer;
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            font-weight: normal;
-        }
-
-        .radio-group input[type="radio"] {
-            margin-left: 8px; /* For RTL */
-            width: auto; /* Override 100% width */
-        }
-
-        /* Drag and Drop feedback */
-        tr.dragging, li.dragging {
-            opacity: 0.5;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px dashed var(--main-color);
-        }
-
-        tr.drag-over-top, li.drag-over-top {
-            border-top: 2px solid var(--accent-color);
-        }
-
-        tr.drag-over-bottom, li.drag-over-bottom {
-            border-bottom: 2px solid var(--accent-color);
-        }
-        /* Hide temporary ID column if needed */
-        .transactions-table th:nth-child(1),
-        .transactions-table td:nth-child(1) {
-            /* display: none; */
-        }
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.5rem;
-            }
-            .header-icons .icon-button {
-                font-size: 1.5rem;
-            }
-            .container {
-                padding: 10px;
-            }
-            .card {
-                padding: 15px;
-            }
-            .balance-display {
-                font-size: 2rem;
-            }
-            .button {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-            }
-            .button.small-button {
-                padding: 6px 10px;
-                font-size: 0.75rem;
-            }
-            th, td {
-                padding: 8px 10px;
-                font-size: 0.9rem;
-            }
-            .summary-item h3 {
-                font-size: 1rem;
-            }
-            .summary-item span {
-                font-size: 1.5rem;
-            }
-            .welcome-page h1 {
-                font-size: 2.5rem;
-            }
-            .welcome-page p {
-                font-size: 1rem;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
-        <div class="header-icons">
-            <button id="home-icon" class="icon-button" title="דף הבית">🏠</button>
-            <button id="settings-icon" class="icon-button" title="הגדרות">⚙️</button>
+        <div class="header-buttons left">
+            <button id="my-money-button" class="icon-button" title="הכסף שלי">💰</button>
+            <button id="graphs-button" class="icon-button" title="גרפים/טבלאות">📈</button>
         </div>
         <h1 id="app-title">הכסף שלי</h1>
-        <div class="header-icons">
-            <button id="enable-notifications-button" class="icon-button" title="קבל התראות">🔔</button>
-            <button id="auth-button" class="icon-button" title="התחברות / הרשמה">🔑</button>
+        <div class="header-buttons right">
+            <button id="home-button" class="icon-button" title="דף הבית">🏠</button>
+            <button id="settings-button" class="icon-button" title="הגדרות">⚙️</button>
         </div>
     </header>
 
-    <main class="welcome-page" id="welcome-page">
-        <div class="card">
-            <h1>ברוכים הבאים ל"הכסף שלי"</h1>
-            <p>נהל את ההכנסות וההוצאות שלך בחכמה, עקוב אחר יעדי חיסכון, וקבל תמונה ברורה של מצבך הפיננסי.</p>
-            <button id="start-guest-button" class="button">התחל עכשיו (כאורח)</button>
-            <p style="margin-top: 20px; font-size: 1.1rem;">
-                <a href="#" id="show-auth-link" style="color: var(--main-color); text-decoration: none; font-weight: bold;">
-                    התחבר או הירשם כדי לשמור את הנתונים שלך בענן.
-                </a>
-            </p>
-        </div>
-
-        <div class="auth-section" id="auth-form-section">
-            <h2>התחברות / הרשמה</h2>
-            <div class="form-group">
-                <label for="auth-email">אימייל:</label>
-                <input type="email" id="auth-email" placeholder="הכנס אימייל" required>
+    <main id="main-content">
+        <section id="welcome-page" class="page active">
+            <div class="card">
+                <h1>ברוכים הבאים ל"הכסף שלי"</h1>
+                <p>נהל את ההכנסות וההוצאות שלך בחכמה, עקוב אחר יעדי חיסכון, וקבל תמונה ברורה של מצבך הפיננסי.</p>
+                <button id="show-auth-form-button" class="button">התחבר או הירשם</button>
+                <button id="start-guest-button" class="button secondary">התחל כאורח</button>
             </div>
-            <div class="form-group">
-                <label for="auth-password">סיסמה:</label>
-                <input type="password" id="auth-password" placeholder="הכנס סיסמה" required>
-            </div>
-            <div class="auth-buttons">
-                <button id="register-button" class="button secondary">הרשמה</button>
-                <button id="login-button" class="button success">התחברות</button>
-                <button id="google-login-button" class="button secondary">התחבר עם גוגל</button>
-            </div>
-            <div id="auth-message" class="message" style="display: none;"></div>
-        </div>
-    </main>
-
-    <main class="container" id="budget-management-page" style="display: none;">
-        <div class="card">
-            <h2>יתרה נוכחית</h2>
-            <div id="current-balance" class="balance-display">0.00 ₪</div>
-        </div>
-
-        <div class="card">
-            <h2>הוספת פעולה חדשה</h2>
-            <div id="transaction-message" class="message" style="display: none;"></div>
-            <div class="form-group">
-                <label for="transaction-type">סוג פעולה:</label>
-                <select id="transaction-type">
-                    <option value="income">הכנסה</option>
-                    <option value="expense">הוצאה</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="transaction-amount">סכום:</label>
-                <input type="number" id="transaction-amount" placeholder="הכנס סכום" min="0" step="0.01">
-            </div>
-            <div class="form-group">
-                <label for="transaction-description">תיאור (אופציונלי):</label>
-                <input type="text" id="transaction-description" placeholder="תיאור הפעולה">
-            </div>
-            <div class="form-group">
-                <label for="transaction-date">תאריך:</label>
-                <input type="date" id="transaction-date">
-            </div>
-            <div class="transaction-buttons">
-                <button id="add-transaction-button" class="button">הוסף פעולה</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>היסטוריית פעולות</h2>
-            <div class="filter-section">
-                <h3>סינון תקופתי</h3>
+            <div class="auth-section" id="auth-form-section">
+                <h2>התחברות / הרשמה</h2>
                 <div class="form-group">
-                    <label for="start-date">מתאריך:</label>
-                    <input type="date" id="start-date">
+                    <label for="auth-email">אימייל:</label>
+                    <input type="email" id="auth-email" placeholder="הכנס אימייל" required>
                 </div>
                 <div class="form-group">
-                    <label for="end-date">עד תאריך:</label>
-                    <input type="date" id="end-date">
+                    <label for="auth-password">סיסמה:</label>
+                    <input type="password" id="auth-password" placeholder="הכנס סיסמה" required>
                 </div>
-                <div class="filter-buttons">
-                    <button id="filter-button" class="button secondary">סנן</button>
-                    <button id="reset-filter-button" class="button secondary">אפס סינון</button>
+                <div class="auth-buttons">
+                    <button id="register-button" class="button secondary">הרשמה</button>
+                    <button id="login-button" class="button success">התחברות</button>
+                    <button id="google-login-button" class="button secondary">התחבר עם גוגל</button>
                 </div>
+                <div id="auth-message" class="message" style="display: none;"></div>
             </div>
+        </section>
 
-            <div class="period-summary">
-                <div class="summary-item income">
-                    <h3>הכנסות בתקופה</h3>
-                    <span id="period-income">0.00 ₪</span>
-                </div>
-                <div class="summary-item expense">
-                    <h3>הוצאות בתקופה</h3>
-                    <span id="period-expense">0.00 ₪</span>
-                </div>
-                <div class="summary-item balance">
-                    <h3>יתרה בתקופה</h3>
-                    <span id="period-balance">0.00 ₪</span>
+        <section id="home-page" class="page">
+            <div class="container">
+                <div class="card home-welcome-card">
+                    <h2>היי!</h2>
+                    <p id="home-greeting"></p>
+                    <div id="notifications-section">
+                        <h3>התראות</h3>
+                        <p id="notification-status">לא ניתן לקבל התראות כרגע. אנא הוסף את האתר למסך הבית.</p>
+                        <button id="enable-notifications-button" class="button" style="display:none;">אפשר התראות</button>
+                    </div>
+                    <div class="balance-summary">
+                        <h3>יתרה נוכחית:</h3>
+                        <div id="current-balance" class="balance-display">0.00 ₪</div>
+                    </div>
                 </div>
             </div>
-            <div id="period-summary-report" class="period-summary-report"></div>
+        </section>
 
-            <table class="transactions-table">
-                <thead>
-                    <tr>
-                        <th>תאריך</th>
-                        <th>סכום</th>
-                        <th>סוג</th>
-                        <th>תיאור</th>
-                        <th>פעולות</th>
-                    </tr>
-                </thead>
-                <tbody id="transactions-table-body">
-                    </tbody>
-            </table>
-        </div>
+        <section id="budget-management-page" class="page">
+            <div class="container">
+                <div class="card">
+                    <h2>יתרה נוכחית</h2>
+                    <div id="current-balance-money-page" class="balance-display">0.00 ₪</div>
+                </div>
+                <div class="card">
+                    <h2>הוספת פעולה חדשה</h2>
+                    <div id="transaction-message" class="message" style="display: none;"></div>
+                    <div class="form-group">
+                        <label for="transaction-type">סוג פעולה:</label>
+                        <select id="transaction-type">
+                            <option value="income">הכנסה</option>
+                            <option value="expense">הוצאה</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-amount">סכום:</label>
+                        <input type="number" id="transaction-amount" placeholder="הכנס סכום" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-description">תיאור (אופציונלי):</label>
+                        <input type="text" id="transaction-description" placeholder="תיאור הפעולה">
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-date">תאריך:</label>
+                        <input type="date" id="transaction-date">
+                    </div>
+                    <div class="transaction-buttons">
+                        <button id="add-transaction-button" class="button">הוסף פעולה</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>היסטוריית פעולות</h2>
+                    <div class="filter-section">
+                        <h3>סינון תקופתי</h3>
+                        <div class="form-group">
+                            <label for="start-date">מתאריך:</label>
+                            <input type="date" id="start-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="end-date">עד תאריך:</label>
+                            <input type="date" id="end-date">
+                        </div>
+                        <div class="filter-buttons">
+                            <button id="filter-button" class="button secondary">סנן</button>
+                            <button id="reset-filter-button" class="button secondary">אפס סינון</button>
+                        </div>
+                    </div>
+                    <div class="period-summary">
+                        <div class="summary-item income">
+                            <h3>הכנסות בתקופה</h3>
+                            <span id="period-income">0.00 ₪</span>
+                        </div>
+                        <div class="summary-item expense">
+                            <h3>הוצאות בתקופה</h3>
+                            <span id="period-expense">0.00 ₪</span>
+                        </div>
+                        <div class="summary-item balance">
+                            <h3>יתרה בתקופה</h3>
+                            <span id="period-balance">0.00 ₪</span>
+                        </div>
+                    </div>
+                    <div id="period-summary-report" class="period-summary-report"></div>
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>תאריך</th>
+                                <th>סכום</th>
+                                <th>סוג</th>
+                                <th>תיאור</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h2>יעדי חיסכון</h2>
+                    <div id="goal-message" class="message" style="display: none;"></div>
+                    <div class="form-group">
+                        <label for="goal-name">שם יעד:</label>
+                        <input type="text" id="goal-name" placeholder="לדוגמה: חופשה בחו'ל">
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-amount">סכום יעד:</label>
+                        <input type="number" id="goal-amount" placeholder="הכנס סכום יעד" min="0" step="0.01">
+                    </div>
+                    <div class="goal-buttons">
+                        <button id="add-goal-button" class="button">הוסף יעד</button>
+                    </div>
+                    <ul id="goals-list" class="goals-list"></ul>
+                </div>
+            </div>
+        </section>
 
-        <div class="card">
-            <h2>יעדי חיסכון</h2>
-            <div id="goal-message" class="message" style="display: none;"></div>
-            <div class="form-group">
-                <label for="goal-name">שם יעד:</label>
-                <input type="text" id="goal-name" placeholder="לדוגמה: חופשה בחו'ל">
+        <section id="graphs-page" class="page">
+            <div class="container">
+                <div class="card">
+                    <h2>גרפים ודוחות</h2>
+                    <p>כאן יופיעו גרפים, טבלאות ודוחות חכמים על ההכנסות וההוצאות שלך.</p>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="goal-amount">סכום יעד:</label>
-                <input type="number" id="goal-amount" placeholder="הכנס סכום יעד" min="0" step="0.01">
-            </div>
-            <div class="goal-buttons">
-                <button id="add-goal-button" class="button">הוסף יעד</button>
-            </div>
-            <ul id="goals-list" class="goals-list">
-                </ul>
-        </div>
+        </section>
     </main>
 
     <footer>
@@ -743,11 +181,27 @@
             <span class="close-button" id="close-modal-button">&times;</span>
             <h2>הגדרות</h2>
 
+            <div class="modal-settings-group" id="profile-settings-group">
+                <h3>פרופיל משתמש</h3>
+                <div class="form-group">
+                    <label for="user-email">אימייל:</label>
+                    <p id="user-email-display"></p>
+                </div>
+                <div class="form-group">
+                    <label for="user-password-display">סיסמה:</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="password" id="user-password-display" value="********" readonly>
+                        <button id="show-password-button" class="button small-button secondary">הצג</button>
+                    </div>
+                </div>
+                <button id="logout-button" class="button danger">התנתק</button>
+            </div>
+
             <div class="modal-settings-group">
                 <h3>ערכת נושא</h3>
                 <div class="radio-group">
                     <label>
-                        <input type="radio" name="theme" value="dark" id="theme-dark-radio" checked> מצב כהה
+                        <input type="radio" name="theme" value="dark" id="theme-dark-radio"> מצב כהה
                     </label>
                     <label>
                         <input type="radio" name="theme" value="light" id="theme-light-radio"> מצב בהיר
@@ -759,11 +213,11 @@
                 <h3>צבעים</h3>
                 <div class="color-picker-group">
                     <label for="main-color-input">צבע ראשי:</label>
-                    <input type="color" id="main-color-input" value="#20c997">
+                    <input type="color" id="main-color-input">
                 </div>
                 <div class="color-picker-group">
                     <label for="accent-color-input">צבע הדגשה:</label>
-                    <input type="color" id="accent-color-input" value="#6f42c1">
+                    <input type="color" id="accent-color-input">
                 </div>
             </div>
 
@@ -771,7 +225,7 @@
                 <h3>פונט</h3>
                 <div class="radio-group">
                     <label>
-                        <input type="radio" name="font" value="Heebo" id="font-Heebo-radio" checked> Heebo
+                        <input type="radio" name="font" value="Heebo" id="font-Heebo-radio"> Heebo
                     </label>
                     <label>
                         <input type="radio" name="font" value="Poppins" id="font-Poppins-radio"> Poppins
@@ -781,944 +235,9 @@
                     </label>
                 </div>
             </div>
-
-            <div class="modal-settings-group">
-                <h3>אודות</h3>
-                <p>גרסת בטא 1.0.0</p>
-                <p>אתר זה נוצר כפרויקט לניהול תקציב אישי. כל הנתונים נשמרים כרגע באופן מקומי.</p>
-            </div>
-
         </div>
     </div>
 
-    <script type="module">
-        // ייבוא הפונקציות שאתה צריך מתוך ה-SDKs שאתה צריך
-        // וודא שהגרסה מתאימה לגרסה העדכנית ביותר ש-Firebase מציעה לך
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, 
-                 createUserWithEmailAndPassword, 
-                 signInWithEmailAndPassword, 
-                 signOut,
-                 onAuthStateChanged,
-                 GoogleAuthProvider,
-                 signInWithPopup } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, 
-                 collection, 
-                 addDoc, 
-                 getDocs, 
-                 query, 
-                 where, 
-                 deleteDoc, 
-                 doc, 
-                 updateDoc, 
-                 setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        // הגדרות Firebase שלך (המידע הספציפי לפרויקט שלך)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCAkTramEw9xQsKDJafmKPTRaoQMyxl_88",
-            authDomain: "my-money-site-177b1.firebaseapp.com",
-            projectId: "my-money-site-177b1",
-            storageBucket: "my-money-site-177b1.firebasestorage.app",
-            messagingSenderId: "1001673216101",
-            appId: "1:1001673216101:web:dd0fc887f73d733889b68c"
-        };
-
-        // אתחול Firebase
-        const app = initializeApp(firebaseConfig);
-
-        // קבלת הפניות לשירותים
-        const auth = getAuth(app); // הפניה לשירות האימות
-        const db = getFirestore(app); // הפניה לשירות מסד הנתונים Firestore
-        const googleProvider = new GoogleAuthProvider(); // ספק אימות גוגל
-
-        // --- DOM Elements ---
-        const welcomePage = document.getElementById('welcome-page');
-        const budgetManagementPage = document.getElementById('budget-management-page');
-        const startGuestButton = document.getElementById('start-guest-button'); // כפתור חדש לכניסה כאורח
-        const showAuthLink = document.getElementById('show-auth-link'); // לינק להצגת טופס האימות
-        const authFormSection = document.getElementById('auth-form-section'); // סקשן טופס האימות
-        const homeIcon = document.getElementById('home-icon');
-        const settingsIcon = document.getElementById('settings-icon');
-        const authButton = document.getElementById('auth-button'); // כפתור התחברות/התנתקות בראש העמוד
-        
-        // Auth form elements
-        const authEmailInput = document.getElementById('auth-email');
-        const authPasswordInput = document.getElementById('auth-password');
-        const registerButton = document.getElementById('register-button');
-        const loginButton = document.getElementById('login-button');
-        const googleLoginButton = document.getElementById('google-login-button');
-        const authMessage = document.getElementById('auth-message');
-
-        const currentBalanceDisplay = document.getElementById('current-balance');
-        const transactionTypeSelect = document.getElementById('transaction-type');
-        const transactionAmountInput = document.getElementById('transaction-amount');
-        const transactionDescriptionInput = document.getElementById('transaction-description');
-        const transactionDateInput = document.getElementById('transaction-date');
-        const addTransactionButton = document.getElementById('add-transaction-button');
-        const transactionMessage = document.getElementById('transaction-message');
-        const transactionsTableBody = document.getElementById('transactions-table-body');
-
-        const goalNameInput = document.getElementById('goal-name');
-        const goalAmountInput = document.getElementById('goal-amount');
-        const addGoalButton = document.getElementById('add-goal-button');
-        const goalMessage = document.getElementById('goal-message');
-        const goalsList = document.getElementById('goals-list');
-
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const filterButton = document.getElementById('filter-button');
-        const resetFilterButton = document.getElementById('reset-filter-button');
-        const periodIncomeSpan = document.getElementById('period-income');
-        const periodExpenseSpan = document.getElementById('period-expense');
-        const periodBalanceSpan = document.getElementById('period-balance');
-        const periodSummaryReport = document.getElementById('period-summary-report');
-
-        // Settings Modal Elements
-        const settingsModal = document.getElementById('settings-modal');
-        const closeModalButton = document.getElementById('close-modal-button');
-        const themeDarkRadio = document.getElementById('theme-dark-radio');
-        const themeLightRadio = document.getElementById('theme-light-radio');
-        const mainColorInput = document.getElementById('main-color-input');
-        const accentColorInput = document.getElementById('accent-color-input');
-        const fontHeeboRadio = document.getElementById('font-Heebo-radio');
-        const fontPoppinsRadio = document.getElementById('font-Poppins-radio');
-        const fontArialRadio = document.getElementById('font-Arial-radio');
-        const enableNotificationsButton = document.getElementById('enable-notifications-button');
-
-        // --- Data ---
-        let transactions = [];
-        let goals = [];
-        let settings = JSON.parse(localStorage.getItem('settings')) || {
-            theme: 'dark',
-            mainColor: '#20c997',
-            accentColor: '#6f42c1',
-            font: 'Heebo'
-        };
-        let currentUser = null; // Stores Firebase user object if logged in
-        let isGuestMode = false; // Flag to indicate if user is in guest mode
-
-        let draggedItem = null; // For Drag & Drop
-
-        // --- Firebase Authentication Functions ---
-
-        // Listen for auth state changes
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in
-                currentUser = user;
-                isGuestMode = false;
-                console.log("User logged in:", currentUser.email, "UID:", currentUser.uid);
-                authButton.textContent = '🚪 התנתק'; // Change button text to Logout
-                authButton.onclick = logoutUser; // Set logout function
-                showBudgetPage(true); // Show budget page for logged-in user
-                loadUserData(); // Load user-specific data from Firestore
-                showMessage(authMessage, `ברוך הבא, ${currentUser.email}!`, 'success');
-            } else {
-                // User is signed out (or was never logged in)
-                currentUser = null;
-                console.log("User logged out or not signed in.");
-                authButton.textContent = '🔑 התחברות / הרשמה'; // Change button text to Login
-                authButton.onclick = showWelcomePage; // Clicking auth button will go to welcome page (which can then show auth form)
-                
-                // If we were in budget page and user logs out, go to welcome page
-                if (budgetManagementPage.style.display === 'block') {
-                    showWelcomePage();
-                }
-                
-                // If we are on the welcome page, ensure auth form is visible if it was explicitly shown before logout
-                if (welcomePage.style.display === 'flex' && localStorage.getItem('showAuthFormOnLoad') === 'true') {
-                     authFormSection.style.display = 'block';
-                } else {
-                    authFormSection.style.display = 'none'; // Hide auth form by default on welcome page
-                }
-
-                // Clear local data if user logs out or is a new guest
-                transactions = []; 
-                goals = [];
-                renderTransactions(); // Clear display
-                renderGoals(); // Clear display
-                updateBalanceDisplay(); // Clear balance
-            }
-        });
-
-        // Register new user
-        registerButton.addEventListener('click', async () => {
-            const email = authEmailInput.value;
-            const password = authPasswordInput.value;
-            if (!email || !password) {
-                showMessage(authMessage, 'אנא הזן אימייל וסיסמה.', 'error');
-                return;
-            }
-            if (password.length < 6) {
-                showMessage(authMessage, 'הסיסמה חייבת להיות לפחות 6 תווים.', 'error');
-                return;
-            }
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Create an empty user document in Firestore upon registration
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    email: userCredential.user.email,
-                    createdAt: new Date()
-                });
-                showMessage(authMessage, 'הרשמה בוצעה בהצלחה!', 'success');
-                localStorage.removeItem('showAuthFormOnLoad'); // Clear flag
-                // User is automatically signed in after registration
-                // onAuthStateChanged will handle the UI update
-            } catch (error) {
-                console.error("Registration error:", error);
-                showMessage(authMessage, `שגיאה בהרשמה: ${error.message}`, 'error');
-            }
-        });
-
-        // Login existing user
-        loginButton.addEventListener('click', async () => {
-            const email = authEmailInput.value;
-            const password = authPasswordInput.value;
-            if (!email || !password) {
-                showMessage(authMessage, 'אנא הזן אימייל וסיסמה.', 'error');
-                return;
-            }
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                showMessage(authMessage, 'התחברות בוצעה בהצלחה!', 'success');
-                localStorage.removeItem('showAuthFormOnLoad'); // Clear flag
-                // User is automatically signed in after login
-                // onAuthStateChanged will handle the UI update
-            } catch (error) {
-                console.error("Login error:", error);
-                showMessage(authMessage, `שגיאה בהתחברות: ${error.message}`, 'error');
-            }
-        });
-
-        // Google Sign-In
-        googleLoginButton.addEventListener('click', async () => {
-            try {
-                const result = await signInWithPopup(auth, googleProvider);
-                // The signed-in user info.
-                const user = result.user;
-                // Check if user document already exists, if not, create it
-                const userDocRef = doc(db, "users", user.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (!userDocSnap.exists()) {
-                    await setDoc(userDocRef, {
-                        email: user.email,
-                        displayName: user.displayName,
-                        createdAt: new Date()
-                    });
-                }
-                
-                showMessage(authMessage, `התחברת בהצלחה עם גוגל, ${user.displayName || user.email}!`, 'success');
-                localStorage.removeItem('showAuthFormOnLoad'); // Clear flag
-                // onAuthStateChanged will handle the UI update
-            } catch (error) {
-                console.error("Google sign-in error:", error);
-                let errorMessage = `שגיאה בהתחברות עם גוגל: ${error.message}`;
-                if (error.code === 'auth/popup-closed-by-user') {
-                    errorMessage = 'התחברות גוגל בוטלה על ידי המשתמש.';
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    errorMessage = 'בקשת התחברות גוגל בוטלה (ייתכן שכבר יש חלון פתוח).';
-                }
-                showMessage(authMessage, errorMessage, 'error');
-            }
-        });
-
-        // Logout user
-        async function logoutUser() {
-            try {
-                await signOut(auth);
-                showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
-                // onAuthStateChanged will handle the UI update
-                isGuestMode = false; // Ensure guest mode is off after logout
-                localStorage.removeItem('showAuthFormOnLoad');
-                showWelcomePage(); // Go back to welcome page after logout
-            } catch (error) {
-                console.error("Logout error:", error);
-                showMessage(authMessage, `שגיאה בהתנתקות: ${error.message}`, 'error');
-            }
-        }
-        
-        // --- Firebase Firestore Data Management Functions ---
-
-        // Function to load user-specific data from Firestore OR localStorage
-        async function loadData() {
-            if (currentUser && !isGuestMode) {
-                // User is logged in with Firebase, load from Firestore
-                try {
-                    // Load Transactions
-                    const transactionsRef = collection(db, `users/${currentUser.uid}/transactions`);
-                    const qTransactions = query(transactionsRef);
-                    const transactionSnapshot = await getDocs(qTransactions);
-                    transactions = transactionSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    
-                    // Sort transactions by date (most recent first), then by timestamp for stable order
-                    transactions.sort((a, b) => {
-                        const dateA = new Date(a.date);
-                        const dateB = new Date(b.date);
-                        if (dateA.getTime() === dateB.getTime()) {
-                            // If dates are the same, sort by internal timestamp (for creation order)
-                            return a.timestamp?.toDate() - b.timestamp?.toDate();
-                        }
-                        return dateB - dateA; // Sort by date descending
-                    });
-
-                    // Load Goals
-                    const goalsRef = collection(db, `users/${currentUser.uid}/goals`);
-                    const qGoals = query(goalsRef);
-                    const goalSnapshot = await getDocs(qGoals);
-                    goals = goalSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                    showMessage(authMessage, 'נתוני התקציב נטענו מהענן!', 'success');
-
-                } catch (error) {
-                    console.error("Error loading user data from Firestore:", error);
-                    showMessage(authMessage, `שגיאה בטעינת נתונים מהענן: ${error.message}`, 'error');
-                    // Fallback to localStorage if Firestore fails for some reason
-                    loadFromLocalStorage(); 
-                }
-            } else {
-                // User is in guest mode or not logged in, load from localStorage
-                loadFromLocalStorage();
-                showMessage(authMessage, 'אתה משתמש במצב אורח. הנתונים נשמרים מקומית.', 'info');
-            }
-            renderTransactions();
-            renderGoals();
-            updateBalanceDisplay();
-            updatePeriodSummary(); // Ensure summary is updated after load
-        }
-
-        function loadFromLocalStorage() {
-            transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-            goals = JSON.parse(localStorage.getItem('goals')) || [];
-            showMessage(authMessage, 'נתוני התקציב נטענו מהזיכרון המקומי!', 'info');
-        }
-
-        // Function to save an individual transaction
-        async function saveTransaction(transaction) {
-            if (currentUser && !isGuestMode) {
-                // Save to Firestore
-                try {
-                    if (transaction.id && !Number.isInteger(transaction.id)) { // Check if it's a Firestore ID
-                        const docRef = doc(db, `users/${currentUser.uid}/transactions`, transaction.id);
-                        await updateDoc(docRef, transaction);
-                    } else {
-                        const { id, ...dataToSave } = transaction; // Exclude temp ID
-                        const docRef = await addDoc(collection(db, `users/${currentUser.uid}/transactions`), dataToSave);
-                        transaction.id = docRef.id; // Update the local object with the Firestore ID
-                    }
-                    await loadData(); // Reload all data to ensure consistency and sort
-                } catch (e) {
-                    console.error("Error adding/updating transaction in Firestore: ", e);
-                    showMessage(transactionMessage, `שגיאה בשמירת פעולה בענן: ${e.message}`, 'error');
-                }
-            } else {
-                // Save to LocalStorage
-                // If it's a new transaction without an ID, assign a temporary one for LocalStorage
-                if (!transaction.id) {
-                    transaction.id = Date.now(); 
-                }
-                const existingIndex = transactions.findIndex(t => t.id === transaction.id);
-                if (existingIndex !== -1) {
-                    transactions[existingIndex] = transaction; // Update existing
-                } else {
-                    transactions.push(transaction); // Add new
-                }
-                saveToLocalStorage();
-                renderTransactions(); // Re-render for local storage changes
-            }
-        }
-
-        // Function to delete a transaction
-        async function deleteTransaction(transactionId) {
-            if (currentUser && !isGuestMode) {
-                // Delete from Firestore
-                try {
-                    await deleteDoc(doc(db, `users/${currentUser.uid}/transactions`, transactionId));
-                    await loadData(); // Reload all data
-                    showMessage(transactionMessage, 'פעולה נמחקה בהצלחה!', 'success');
-                } catch (e) {
-                    console.error("Error removing transaction from Firestore: ", e);
-                    showMessage(transactionMessage, `שגיאה במחיקת פעולה מהענן: ${e.message}`, 'error');
-                }
-            } else {
-                // Delete from LocalStorage
-                transactions = transactions.filter(t => t.id !== transactionId);
-                saveToLocalStorage();
-                renderTransactions();
-                showMessage(transactionMessage, 'פעולה נמחקה בהצלחה!', 'success');
-            }
-        }
-
-        // Function to save an individual goal
-        async function saveGoal(goal) {
-            if (currentUser && !isGuestMode) {
-                // Save to Firestore
-                try {
-                    if (goal.id && !Number.isInteger(goal.id)) { // Check if it's a Firestore ID
-                        const docRef = doc(db, `users/${currentUser.uid}/goals`, goal.id);
-                        await updateDoc(docRef, goal);
-                    } else {
-                        const { id, ...dataToSave } = goal; // Exclude temp ID
-                        const docRef = await addDoc(collection(db, `users/${currentUser.uid}/goals`), dataToSave);
-                        goal.id = docRef.id; // Update the local object with the Firestore ID
-                    }
-                    await loadData(); // Reload all data
-                } catch (e) {
-                    console.error("Error adding/updating goal in Firestore: ", e);
-                    showMessage(goalMessage, `שגיאה בשמירת יעד בענן: ${e.message}`, 'error');
-                }
-            } else {
-                // Save to LocalStorage
-                if (!goal.id) {
-                    goal.id = Date.now(); 
-                }
-                const existingIndex = goals.findIndex(g => g.id === goal.id);
-                if (existingIndex !== -1) {
-                    goals[existingIndex] = goal; // Update existing
-                } else {
-                    goals.push(goal); // Add new
-                }
-                saveToLocalStorage();
-                renderGoals(); // Re-render for local storage changes
-            }
-        }
-
-        // Function to delete a goal
-        async function deleteGoal(goalId) {
-            if (currentUser && !isGuestMode) {
-                // Delete from Firestore
-                try {
-                    await deleteDoc(doc(db, `users/${currentUser.uid}/goals`, goalId));
-                    await loadData(); // Reload all data
-                    showMessage(goalMessage, 'יעד נמחק בהצלחה!', 'success');
-                } catch (e) {
-                    console.error("Error removing goal from Firestore: ", e);
-                    showMessage(goalMessage, `שגיאה במחיקת יעד מהענן: ${e.message}`, 'error');
-                }
-            } else {
-                // Delete from LocalStorage
-                goals = goals.filter(g => g.id !== goalId);
-                saveToLocalStorage();
-                renderGoals();
-                showMessage(goalMessage, 'יעד נמחק בהצלחה!', 'success');
-            }
-        }
-
-        // Saves only settings and current local transactions/goals to LocalStorage
-        function saveToLocalStorage() {
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-            localStorage.setItem('goals', JSON.stringify(goals));
-            localStorage.setItem('settings', JSON.stringify(settings));
-        }
-
-        // --- General App Logic ---
-
-        function applySettings() {
-            document.body.classList.remove('dark-theme', 'light-theme');
-            document.body.classList.add(settings.theme === 'dark' ? 'dark-theme' : 'light-theme');
-            if (settings.theme === 'dark') {
-                themeDarkRadio.checked = true;
-            } else {
-                themeLightRadio.checked = true;
-            }
-
-            document.documentElement.style.setProperty('--main-color', settings.mainColor);
-            document.documentElement.style.setProperty('--accent-color', settings.accentColor);
-            mainColorInput.value = settings.mainColor;
-            accentColorInput.value = settings.accentColor;
-
-            document.body.style.fontFamily = `'${settings.font}', sans-serif`;
-            if (settings.font === 'Heebo') fontHeeboRadio.checked = true;
-            else if (settings.font === 'Poppins') fontPoppinsRadio.checked = true;
-            else if (settings.font === 'Arial') fontArialRadio.checked = true;
-        }
-
-        function saveSettingsToLocalStorage() {
-            localStorage.setItem('settings', JSON.stringify(settings));
-        }
-
-        // Function to show budget page
-        function showBudgetPage(fromLogin = false) {
-            welcomePage.style.display = 'none';
-            budgetManagementPage.style.display = 'block';
-            authFormSection.style.display = 'none'; // Hide auth form when budget page is shown
-            // Load data based on current mode (logged in or guest)
-            if (!fromLogin) { // Only load if not coming from a Firebase login (as onAuthStateChanged already loads)
-                loadData();
-            }
-        }
-
-        // Function to show welcome page
-        function showWelcomePage() {
-            welcomePage.style.display = 'flex';
-            budgetManagementPage.style.display = 'none';
-            authFormSection.style.display = 'none'; // Hide auth form by default
-            isGuestMode = false; // Reset guest mode when returning to welcome page
-            localStorage.removeItem('showAuthFormOnLoad'); // Clear the flag
-            // Clear current data if returning from budget page (important for guest mode)
-            transactions = []; 
-            goals = [];
-            renderTransactions(); 
-            renderGoals(); 
-            updateBalanceDisplay();
-        }
-
-        // --- Event Listeners ---
-        startGuestButton.addEventListener('click', () => {
-            isGuestMode = true; // Set guest mode flag
-            showBudgetPage(); // Show budget page
-        });
-
-        showAuthLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent page reload
-            authFormSection.style.display = 'block'; // Show the auth form
-            localStorage.setItem('showAuthFormOnLoad', 'true'); // Persist this state across refreshes
-        });
-
-        homeIcon.addEventListener('click', showWelcomePage);
-        
-        // This button now either logs out (if logged in) or shows auth form (if guest/not logged in)
-        authButton.addEventListener('click', () => {
-            if (currentUser) {
-                logoutUser();
-            } else {
-                showWelcomePage(); // Go to welcome page first
-                authFormSection.style.display = 'block'; // Then show the auth form
-                localStorage.setItem('showAuthFormOnLoad', 'true');
-            }
-        });
-
-        settingsIcon.addEventListener('click', () => {
-            settingsModal.style.display = 'flex';
-        });
-
-        closeModalButton.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (event) => {
-            if (event.target === settingsModal) {
-                settingsModal.style.display = 'none';
-            }
-        });
-
-        themeDarkRadio.addEventListener('change', () => {
-            settings.theme = 'dark';
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-        themeLightRadio.addEventListener('change', () => {
-            settings.theme = 'light';
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-
-        mainColorInput.addEventListener('input', (event) => {
-            settings.mainColor = event.target.value;
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-        accentColorInput.addEventListener('input', (event) => {
-            settings.accentColor = event.target.value;
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-
-        fontHeeboRadio.addEventListener('change', () => {
-            settings.font = 'Heebo';
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-        fontPoppinsRadio.addEventListener('change', () => {
-            settings.font = 'Poppins';
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-        fontArialRadio.addEventListener('change', () => {
-            settings.font = 'Arial';
-            applySettings();
-            saveSettingsToLocalStorage();
-        });
-
-        // --- Transaction Logic (Now using shared save/delete functions) ---
-        function renderTransactions(filteredTransactions = transactions) {
-            transactionsTableBody.innerHTML = '';
-            filteredTransactions.forEach((transaction) => {
-                const row = transactionsTableBody.insertRow();
-                row.dataset.id = transaction.id;
-                row.draggable = true;
-
-                const dateCell = row.insertCell();
-                dateCell.textContent = transaction.date;
-
-                const amountCell = row.insertCell();
-                amountCell.textContent = `${transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)} ₪`;
-                amountCell.classList.add(transaction.type);
-
-                const typeCell = row.insertCell();
-                typeCell.textContent = transaction.type === 'income' ? 'הכנסה' : 'הוצאה';
-
-                const descriptionCell = row.insertCell();
-                descriptionCell.textContent = transaction.description || '';
-
-                const actionsCell = row.insertCell();
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = '🗑️';
-                deleteButton.classList.add('button', 'danger', 'small-button');
-                deleteButton.onclick = () => deleteTransaction(transaction.id); // Use the unified delete function
-                actionsCell.appendChild(deleteButton);
-            });
-            updateBalanceDisplay();
-            updatePeriodSummary();
-        }
-
-        // Add Transaction
-        addTransactionButton.addEventListener('click', async () => {
-            const type = transactionTypeSelect.value;
-            const amount = parseFloat(transactionAmountInput.value);
-            const description = transactionDescriptionInput.value.trim();
-            const date = transactionDateInput.value;
-
-            if (isNaN(amount) || amount <= 0 || !date) {
-                showMessage(transactionMessage, 'אנא הכנס סכום חיובי ותאריך.', 'error');
-                return;
-            }
-
-            const newTransaction = {
-                type,
-                amount,
-                description,
-                date,
-                timestamp: new Date() // Add a timestamp for robust sorting
-            };
-
-            await saveTransaction(newTransaction); // Use the unified save function
-            showMessage(transactionMessage, 'פעולה נוספה בהצלחה!', 'success');
-
-            // Clear inputs
-            transactionAmountInput.value = '';
-            transactionDescriptionInput.value = '';
-            transactionDateInput.valueAsDate = new Date();
-        });
-
-
-        // --- Goal Logic (Now using shared save/delete functions) ---
-        function renderGoals() {
-            goalsList.innerHTML = '';
-            goals.forEach((goal) => {
-                const listItem = document.createElement('li');
-                listItem.dataset.id = goal.id;
-                listItem.draggable = true;
-
-                const progress = (goal.currentAmount / goal.targetAmount) * 100;
-                const progressText = progress >= 100 ? ' (יעד הושלם! 🎉)' : ` (נחסך: ${goal.currentAmount.toFixed(2)} ₪ מתוך ${goal.targetAmount.toFixed(2)} ₪)`;
-                const icon = progress >= 100 ? '✅' : '🎯';
-
-                listItem.innerHTML = `
-                    ${icon} ${goal.name}: ${progressText}
-                    <div class="goal-actions">
-                        <input type="number" class="add-to-goal-input" placeholder="הוסף סכום" min="0" step="0.01">
-                        <button class="button success small-button add-to-goal-button" data-id="${goal.id}">הוסף</button>
-                        <button class="button danger small-button delete-goal-button" data-id="${goal.id}">מחק</button>
-                    </div>
-                `;
-                goalsList.appendChild(listItem);
-            });
-            addGoalEventListeners(); // Re-attach listeners after rendering
-        }
-
-        function addGoalEventListeners() {
-            document.querySelectorAll('.add-to-goal-button').forEach(button => {
-                button.onclick = async (event) => {
-                    const goalId = event.target.dataset.id;
-                    const input = event.target.previousElementSibling;
-                    const amountToAdd = parseFloat(input.value);
-
-                    if (isNaN(amountToAdd) || amountToAdd <= 0) {
-                        showMessage(goalMessage, 'אנא הכנס סכום חיובי.', 'error');
-                        return;
-                    }
-                    
-                    const goalToUpdate = goals.find(g => g.id === goalId);
-                    if (goalToUpdate) {
-                        goalToUpdate.currentAmount += amountToAdd;
-                        await saveGoal(goalToUpdate); // Use the unified save function
-                        showMessage(goalMessage, 'סכום נוסף ליעד בהצלחה!', 'success');
-                        input.value = '';
-                    }
-                };
-            });
-
-            document.querySelectorAll('.delete-goal-button').forEach(button => {
-                button.onclick = async (event) => {
-                    const goalId = event.target.dataset.id;
-                    await deleteGoal(goalId); // Use the unified delete function
-                    showMessage(goalMessage, 'יעד נמחק בהצלחה!', 'success');
-                };
-            });
-        }
-
-        // Add Goal
-        addGoalButton.addEventListener('click', async () => {
-            const name = goalNameInput.value.trim();
-            const amount = parseFloat(goalAmountInput.value);
-
-            if (!name || isNaN(amount) || amount <= 0) {
-                showMessage(goalMessage, 'אנא הכנס שם יעד וסכום חיובי.', 'error');
-                return;
-            }
-
-            const newGoal = {
-                name,
-                targetAmount: amount,
-                currentAmount: 0
-            };
-
-            await saveGoal(newGoal); // Use the unified save function
-            showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
-
-            // Clear inputs
-            goalNameInput.value = '';
-            goalAmountInput.value = '';
-        });
-
-        // --- Balance and Summary ---
-        function updateBalanceDisplay() {
-            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const totalGoalsSaved = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
-
-            const currentBalance = totalIncome - totalExpense - totalGoalsSaved;
-            currentBalanceDisplay.textContent = `${currentBalance.toFixed(2)} ₪`;
-        }
-
-        function showMessage(element, msg, type) {
-            element.textContent = msg;
-            element.className = `message ${type}`;
-            element.style.display = 'block';
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
-        }
-
-        function updatePeriodSummary() {
-            const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-            const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
-
-            let filteredTransactions = transactions;
-            if (startDate && endDate) {
-                filteredTransactions = transactions.filter(t => {
-                    const transactionDate = new Date(t.date);
-                    return transactionDate >= startDate && transactionDate <= endDate;
-                });
-            }
-
-            const periodIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const periodExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const periodBalance = periodIncome - periodExpense;
-
-            periodIncomeSpan.textContent = `${periodIncome.toFixed(2)} ₪`;
-            periodExpenseSpan.textContent = `${periodExpense.toFixed(2)} ₪`;
-            periodBalanceSpan.textContent = `${periodBalance.toFixed(2)} ₪`;
-
-            periodSummaryReport.classList.remove('good-budget', 'warning-budget', 'bad-budget');
-            if (periodBalance >= 0) {
-                periodSummaryReport.classList.add('good-budget');
-                periodSummaryReport.textContent = 'תקציב מצוין! 👍';
-            } else if (periodBalance > -100) { 
-                periodSummaryReport.classList.add('warning-budget');
-                periodSummaryReport.textContent = 'שימו לב לתקציב. ⚠️';
-            } else {
-                periodSummaryReport.classList.add('bad-budget');
-                periodSummaryReport.textContent = 'התקציב בחריגה משמעותית. 🚨';
-            }
-        }
-
-        filterButton.addEventListener('click', updatePeriodSummary);
-        resetFilterButton.addEventListener('click', () => {
-            startDateInput.value = '';
-            endDateInput.value = '';
-            renderTransactions(); // Re-render all transactions
-            updatePeriodSummary(); // Update summary for all transactions
-        });
-
-        // --- Drag & Drop logic ---
-        // Note: Drag and drop for reordering will only be visual in guest mode.
-        // For logged-in users, persisting order requires adding an 'order' field to Firestore documents,
-        // and updating all affected documents on drop, which is a more advanced feature.
-        
-        transactionsTableBody.addEventListener('dragstart', (e) => {
-            draggedItem = e.target.closest('tr');
-            if (draggedItem) {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', draggedItem.dataset.id);
-                setTimeout(() => draggedItem.classList.add('dragging'), 0);
-            }
-        });
-
-        transactionsTableBody.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const targetRow = e.target.closest('tr');
-            if (targetRow && targetRow !== draggedItem) {
-                const rect = targetRow.getBoundingClientRect();
-                const midY = rect.top + rect.height / 2;
-                if (e.clientY < midY) {
-                    targetRow.classList.add('drag-over-top');
-                    targetRow.classList.remove('drag-over-bottom');
-                } else {
-                    targetRow.classList.add('drag-over-bottom');
-                    targetRow.classList.remove('drag-over-top');
-                }
-            }
-        });
-
-        transactionsTableBody.addEventListener('dragleave', (e) => {
-            e.target.closest('tr')?.classList.remove('drag-over-top', 'drag-over-bottom');
-        });
-
-        transactionsTableBody.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            const targetRow = e.target.closest('tr');
-            if (draggedItem && targetRow && targetRow !== draggedItem) {
-                const draggedId = draggedItem.dataset.id;
-                const targetId = targetRow.dataset.id;
-
-                const draggedIndex = transactions.findIndex(t => t.id == draggedId); // Use == for mixed types (string/number)
-                const targetIndex = transactions.findIndex(t => t.id == targetId);
-
-                if (draggedIndex === -1 || targetIndex === -1) {
-                    console.error("Drag/Drop: Item not found in array.");
-                    return;
-                }
-
-                const [removed] = transactions.splice(draggedIndex, 1);
-                
-                let newIndex;
-                if (targetRow.classList.contains('drag-over-top')) {
-                    newIndex = targetIndex;
-                } else { // 'drag-over-bottom' or default to insert after
-                    newIndex = targetIndex + 1;
-                }
-                
-                transactions.splice(newIndex, 0, removed);
-
-                // For Firestore, this reordering is only visual. To persist, 
-                // you'd need to update an 'order' field for all affected documents.
-                if (isGuestMode) {
-                    saveToLocalStorage(); // Save new order for guest mode
-                } else {
-                    // For Firebase, this is where you'd update the 'order' fields in Firestore
-                    // This is complex and out of scope for initial setup.
-                    // For now, logged-in user drag-drop is visual only, data order isn't saved.
-                }
-                
-                renderTransactions(); // Re-render to ensure visual consistency
-            }
-            targetRow?.classList.remove('drag-over-top', 'drag-over-bottom');
-        });
-
-        transactionsTableBody.addEventListener('dragend', () => {
-            draggedItem?.classList.remove('dragging');
-            draggedItem = null;
-            document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
-                el.classList.remove('drag-over-top', 'drag-over-bottom');
-            });
-        });
-
-        goalsList.addEventListener('dragstart', (e) => {
-            draggedItem = e.target.closest('li');
-            if (draggedItem) {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', draggedItem.dataset.id);
-                setTimeout(() => draggedItem.classList.add('dragging'), 0);
-            }
-        });
-
-        goalsList.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const targetItem = e.target.closest('li');
-            if (targetItem && targetItem !== draggedItem) {
-                const rect = targetItem.getBoundingClientRect();
-                const midY = rect.top + rect.height / 2;
-                if (e.clientY < midY) {
-                    targetItem.classList.add('drag-over-top');
-                    targetItem.classList.remove('drag-over-bottom');
-                } else {
-                    targetItem.classList.add('drag-over-bottom');
-                    targetItem.classList.remove('drag-over-top');
-                }
-            }
-        });
-
-        goalsList.addEventListener('dragleave', (e) => {
-            e.target.closest('li')?.classList.remove('drag-over-top', 'drag-over-bottom');
-        });
-
-        goalsList.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            const targetItem = e.target.closest('li');
-            if (draggedItem && targetItem && targetItem !== draggedItem) {
-                const draggedId = draggedItem.dataset.id;
-                const targetId = targetItem.dataset.id;
-
-                const draggedIndex = goals.findIndex(g => g.id == draggedId);
-                const targetIndex = goals.findIndex(g => g.id == targetId);
-
-                if (draggedIndex === -1 || targetIndex === -1) {
-                    console.error("Drag/Drop: Goal item not found in array.");
-                    return;
-                }
-
-                const [removed] = goals.splice(draggedIndex, 1);
-                
-                let newIndex;
-                if (targetItem.classList.contains('drag-over-top')) {
-                    newIndex = targetIndex;
-                } else { // 'drag-over-bottom' or default to insert after
-                    newIndex = targetIndex + 1;
-                }
-                
-                goals.splice(newIndex, 0, removed);
-                
-                if (isGuestMode) {
-                    saveToLocalStorage(); // Save new order for guest mode
-                } else {
-                    // Similar to transactions, persistence for logged-in users requires an 'order' field in Firestore
-                }
-                renderGoals();
-            }
-            targetItem?.classList.remove('drag-over-top', 'drag-over-bottom');
-        });
-
-        goalsList.addEventListener('dragend', () => {
-            draggedItem?.classList.remove('dragging');
-            draggedItem = null;
-            document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
-                el.classList.remove('drag-over-top', 'drag-over-bottom');
-            });
-        });
-
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            applySettings();
-            transactionDateInput.valueAsDate = new Date(); // Set today's date
-
-            // Check if user was previously viewing the auth form (e.g., after refresh)
-            if (localStorage.getItem('showAuthFormOnLoad') === 'true' && !currentUser) {
-                authFormSection.style.display = 'block';
-            } else {
-                authFormSection.style.display = 'none'; // Ensure it's hidden by default
-            }
-
-            // onAuthStateChanged listener will handle showing the correct page and loading data for logged-in users
-            // For guests, we need to explicitly load data if they navigate to budget page.
-            // The initial state on page load is usually the welcome page.
-        });
-
-        enableNotificationsButton.addEventListener('click', () => {
-            alert('בקשת התראות נשלחה! (פונקציונליות מלאה דורשת הגדרות שרת ו-Service Worker)');
-            // In a real app, you'd request Notification.permission here
-        });
-
-    </script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
