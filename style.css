@@ -1,7 +1,22 @@
 /* CSS Reset & General Styles */
 :root {
-    --main-color: #20c997; /* Default main color */
-    --accent-color: #6f42c1; /* Default accent color */
+    --main-color: #007bff; /* Default main color */
+    --accent-color: #6c757d; /* Default accent color */
+    --text-color: #333;
+    --background-color: #f8f9fa;
+    --card-background: #ffffff;
+    --border-color: #ddd;
+    --button-hover-bg: #0056b3;
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme {
+    --main-color: #20c997;
+    --accent-color: #6f42c1;
     --text-color: #e0e0e0;
     --background-color: #1a1a2e;
     --card-background: #16213e;
@@ -12,14 +27,6 @@
     --warning-color: #ffc107;
     --info-color: #0dcaf0;
     --shadow-color: rgba(0, 0, 0, 0.4);
-}
-
-.light-theme {
-    --text-color: #333;
-    --background-color: #f0f2f5;
-    --card-background: #ffffff;
-    --border-color: #ddd;
-    --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -58,6 +65,12 @@ header h1 {
 .header-buttons {
     display: flex;
     gap: 15px;
+}
+.header-buttons.left {
+    display: none; /* מוסתר כברירת מחדל */
+}
+body.logged-in .header-buttons.left {
+    display: flex; /* מוצג כשמחוברים */
 }
 
 .header-buttons .icon-button {
@@ -136,6 +149,16 @@ textarea {
     font-size: 1rem;
     transition: border-color 0.2s, background-color 0.2s;
 }
+
+.dark-theme input[type="date"] {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+.light-theme input[type="date"] {
+    background-color: #fff;
+    color: #333;
+}
+
 
 input[type="text"]:focus,
 input[type="email"]:focus,
@@ -410,7 +433,6 @@ footer {
 }
 
 .auth-section {
-    display: none; /* Hidden by default, shown when user clicks auth button */
     margin-top: 30px;
     width: 100%;
     max-width: 400px; /* Limit width of auth form */

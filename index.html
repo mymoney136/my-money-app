@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="light-theme">
     <header>
         <div class="header-buttons left">
             <button id="my-money-button" class="icon-button" title="הכסף שלי">💰</button>
@@ -26,25 +26,48 @@
             <div class="card">
                 <h1>ברוכים הבאים ל"הכסף שלי"</h1>
                 <p>נהל את ההכנסות וההוצאות שלך בחכמה, עקוב אחר יעדי חיסכון, וקבל תמונה ברורה של מצבך הפיננסי.</p>
-                <button id="show-auth-form-button" class="button">התחבר או הירשם</button>
+                <div class="auth-section">
+                    <div id="auth-form-section">
+                        <h2>התחברות / הרשמה</h2>
+                        <div id="register-fields">
+                            <div class="form-group">
+                                <label for="auth-email">אימייל:</label>
+                                <input type="email" id="auth-email" placeholder="הכנס אימייל" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="auth-password">סיסמה:</label>
+                                <input type="password" id="auth-password" placeholder="הכנס סיסמה" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">אמת סיסמה:</label>
+                                <input type="password" id="confirm-password" placeholder="אמת סיסמה" required>
+                            </div>
+                            <div class="auth-buttons">
+                                <button id="register-button" class="button secondary">הרשמה</button>
+                                <button id="show-login-form-button" class="button success">כבר יש לי חשבון</button>
+                            </div>
+                        </div>
+                        <div id="login-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="login-email">אימייל:</label>
+                                <input type="email" id="login-email" placeholder="הכנס אימייל" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">סיסמה:</label>
+                                <input type="password" id="login-password" placeholder="הכנס סיסמה" required>
+                            </div>
+                            <div class="auth-buttons">
+                                <button id="login-button" class="button success">התחברות</button>
+                                <button id="show-register-form-button" class="button secondary">הירשם עכשיו</button>
+                            </div>
+                        </div>
+                        <div class="auth-buttons">
+                           <button id="google-login-button" class="button secondary">התחבר עם גוגל</button>
+                        </div>
+                        <div id="auth-message" class="message" style="display: none;"></div>
+                    </div>
+                </div>
                 <button id="start-guest-button" class="button secondary">התחל כאורח</button>
-            </div>
-            <div class="auth-section" id="auth-form-section">
-                <h2>התחברות / הרשמה</h2>
-                <div class="form-group">
-                    <label for="auth-email">אימייל:</label>
-                    <input type="email" id="auth-email" placeholder="הכנס אימייל" required>
-                </div>
-                <div class="form-group">
-                    <label for="auth-password">סיסמה:</label>
-                    <input type="password" id="auth-password" placeholder="הכנס סיסמה" required>
-                </div>
-                <div class="auth-buttons">
-                    <button id="register-button" class="button secondary">הרשמה</button>
-                    <button id="login-button" class="button success">התחברות</button>
-                    <button id="google-login-button" class="button secondary">התחבר עם גוגל</button>
-                </div>
-                <div id="auth-message" class="message" style="display: none;"></div>
             </div>
         </section>
 
@@ -55,7 +78,7 @@
                     <p id="home-greeting"></p>
                     <div id="notifications-section">
                         <h3>התראות</h3>
-                        <p id="notification-status">לא ניתן לקבל התראות כרגע. אנא הוסף את האתר למסך הבית.</p>
+                        <p id="notification-status">כדי לקבל התראות, הוסף את האתר למסך הבית שלך.</p>
                         <button id="enable-notifications-button" class="button" style="display:none;">אפשר התראות</button>
                     </div>
                     <div class="balance-summary">
@@ -188,9 +211,9 @@
                     <p id="user-email-display"></p>
                 </div>
                 <div class="form-group">
-                    <label for="user-password-display">סיסמה:</label>
+                    <label for="user-password-input">סיסמה:</label>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="password" id="user-password-display" value="********" readonly>
+                        <input type="password" id="user-password-input" value="********" readonly>
                         <button id="show-password-button" class="button small-button secondary">הצג</button>
                     </div>
                 </div>
@@ -204,7 +227,7 @@
                         <input type="radio" name="theme" value="dark" id="theme-dark-radio"> מצב כהה
                     </label>
                     <label>
-                        <input type="radio" name="theme" value="light" id="theme-light-radio"> מצב בהיר
+                        <input type="radio" name="theme" value="light" id="theme-light-radio" checked> מצב בהיר
                     </label>
                 </div>
             </div>
@@ -225,7 +248,7 @@
                 <h3>פונט</h3>
                 <div class="radio-group">
                     <label>
-                        <input type="radio" name="font" value="Heebo" id="font-Heebo-radio"> Heebo
+                        <input type="radio" name="font" value="Heebo" id="font-Heebo-radio" checked> Heebo
                     </label>
                     <label>
                         <input type="radio" name="font" value="Poppins" id="font-Poppins-radio"> Poppins

@@ -46,16 +46,23 @@ const myMoneyButton = document.getElementById('my-money-button');
 const graphsButton = document.getElementById('graphs-button');
 const settingsButton = document.getElementById('settings-button');
 
-const showAuthFormButton = document.getElementById('show-auth-form-button');
 const startGuestButton = document.getElementById('start-guest-button');
 const authFormSection = document.getElementById('auth-form-section');
 
 const authEmailInput = document.getElementById('auth-email');
 const authPasswordInput = document.getElementById('auth-password');
+const confirmPasswordInput = document.getElementById('confirm-password');
 const registerButton = document.getElementById('register-button');
+
+const loginEmailInput = document.getElementById('login-email');
+const loginPasswordInput = document.getElementById('login-password');
 const loginButton = document.getElementById('login-button');
+const showRegisterFormButton = document.getElementById('show-register-form-button');
+const showLoginFormButton = document.getElementById('show-login-form-button');
 const googleLoginButton = document.getElementById('google-login-button');
 const authMessage = document.getElementById('auth-message');
+const registerFields = document.getElementById('register-fields');
+const loginFields = document.getElementById('login-fields');
 
 const homeGreeting = document.getElementById('home-greeting');
 const currentBalanceDisplayHome = document.getElementById('current-balance');
@@ -90,7 +97,7 @@ const periodSummaryReport = document.getElementById('period-summary-report');
 const settingsModal = document.getElementById('settings-modal');
 const closeModalButton = document.getElementById('close-modal-button');
 const userEmailDisplay = document.getElementById('user-email-display');
-const userPasswordDisplay = document.getElementById('user-password-display');
+const userPasswordInput = document.getElementById('user-password-input');
 const showPasswordButton = document.getElementById('show-password-button');
 const logoutButton = document.getElementById('logout-button');
 const themeDarkRadio = document.getElementById('theme-dark-radio');
@@ -106,9 +113,9 @@ const fontArialRadio = document.getElementById('font-Arial-radio');
 let transactions = [];
 let goals = [];
 let settings = JSON.parse(localStorage.getItem('settings')) || {
-    theme: 'dark',
-    mainColor: '#20c997',
-    accentColor: '#6f42c1',
+    theme: 'light',
+    mainColor: '#007bff',
+    accentColor: '#6c757d',
     font: 'Heebo'
 };
 let currentUser = null;
@@ -138,12 +145,14 @@ function applySettings() {
     root.style.setProperty('--accent-color', settings.accentColor);
     root.style.setProperty('font-family', settings.font);
 
-    if (settings.theme === 'light') {
+    if (settings.theme === 'dark') {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        themeDarkRadio.checked = true;
+    } else {
+        document.body.classList.remove('dark-theme');
         document.body.classList.add('light-theme');
         themeLightRadio.checked = true;
-    } else {
-        document.body.classList.remove('light-theme');
-        themeDarkRadio.checked = true;
     }
 
     mainColorInput.value = settings.mainColor;
@@ -184,6 +193,7 @@ async function loadUserData() {
 
 async function saveTransaction(transaction) {
     if (isGuestMode) {
+        transaction.id = Date.now().toString(); // סימולציה של ID
         transactions.push(transaction);
         localStorage.setItem('guestTransactions', JSON.stringify(transactions));
     } else if (currentUser) {
@@ -198,7 +208,49 @@ async function saveTransaction(transaction) {
     updateUI();
 }
 
-// (שאר פונקציות שמירת/מחיקת נתונים דומות, בהתאם ל-isGuestMode / currentUser)
+async function deleteTransaction(transactionId) {
+    if (isGuestMode) {
+        transactions = transactions.filter(t => t.id !== transactionId);
+        localStorage.setItem('guestTransactions', JSON.stringify(transactions));
+    } else if (currentUser) {
+        try {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', transactionId));
+        } catch (e) {
+            console.error("Error deleting transaction: ", e);
+        }
+    }
+    updateUI();
+}
+
+async function addGoal(goal) {
+    if (isGuestMode) {
+        goal.id = Date.now().toString(); // סימולציה של ID
+        goals.push(goal);
+        localStorage.setItem('guestGoals', JSON.stringify(goals));
+    } else if (currentUser) {
+        const userId = currentUser.uid;
+        try {
+            await addDoc(collection(db, 'users', userId, 'goals'), goal);
+        } catch (e) {
+            console.error("Error adding goal: ", e);
+        }
+    }
+    updateUI();
+}
+
+async function deleteGoal(goalId) {
+    if (isGuestMode) {
+        goals = goals.filter(g => g.id !== goalId);
+        localStorage.setItem('guestGoals', JSON.stringify(goals));
+    } else if (currentUser) {
+        try {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'goals', goalId));
+        } catch (e) {
+            console.error("Error deleting goal: ", e);
+        }
+    }
+    updateUI();
+}
 
 // --- ניהול ממשק משתמש (UI) ---
 function updateUI() {
@@ -219,7 +271,7 @@ function renderTransactionsTable(transactionsToRender) {
             <td>${t.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
             <td>${t.description || ''}</td>
             <td>
-                <button class="button danger small-button" data-id="${t.id}">מחק</button>
+                <button class="button danger small-button delete-transaction" data-id="${t.id}">מחק</button>
             </td>
         `;
         transactionsTableBody.appendChild(row);
@@ -236,9 +288,7 @@ function renderGoalsList(goalsToRender) {
                 <strong>${g.name}</strong> - יעד: ${g.amount.toFixed(2)} ₪, נחסך: ${g.saved.toFixed(2)} ₪
             </div>
             <div class="goal-actions">
-                <input type="number" class="add-to-goal-input" placeholder="הוסף סכום" min="0" step="0.01">
-                <button class="button small-button" data-id="${g.id}">הוסף</button>
-                <button class="button danger small-button" data-id="${g.id}">מחק</button>
+                <button class="button danger small-button delete-goal" data-id="${g.id}">מחק</button>
             </div>
         `;
         goalsList.appendChild(li);
@@ -262,9 +312,35 @@ function updateBalances() {
     currentBalanceDisplayMyMoney.textContent = `${balance.toFixed(2)} ₪`;
 }
 
-function updatePeriodSummary() {
-    // Implement period summary logic
+function updatePeriodSummary(filteredTransactions = transactions) {
+    let periodIncome = 0;
+    let periodExpense = 0;
+    filteredTransactions.forEach(t => {
+        if (t.type === 'income') {
+            periodIncome += parseFloat(t.amount);
+        } else {
+            periodExpense += parseFloat(t.amount);
+        }
+    });
+
+    const periodBalance = periodIncome - periodExpense;
+
+    periodIncomeSpan.textContent = `${periodIncome.toFixed(2)} ₪`;
+    periodExpenseSpan.textContent = `${periodExpense.toFixed(2)} ₪`;
+    periodBalanceSpan.textContent = `${periodBalance.toFixed(2)} ₪`;
+
+    if (periodBalance > 0) {
+        periodSummaryReport.className = 'period-summary-report good-budget';
+        periodSummaryReport.textContent = 'כל הכבוד! נשאר לך עודף בתקופה זו.';
+    } else if (periodBalance === 0) {
+        periodSummaryReport.className = 'period-summary-report warning-budget';
+        periodSummaryReport.textContent = 'סיימת את התקופה באיזון.';
+    } else {
+        periodSummaryReport.className = 'period-summary-report bad-budget';
+        periodSummaryReport.textContent = 'שים לב, נכנסת למינוס בתקופה זו.';
+    }
 }
+
 
 // --- אירועי לחיצות (Event Listeners) ---
 
@@ -275,13 +351,12 @@ graphsButton.addEventListener('click', () => showPage(graphsPage));
 settingsButton.addEventListener('click', () => {
     if (currentUser) {
         userEmailDisplay.textContent = currentUser.email;
-        userPasswordDisplay.value = "********";
+        userPasswordInput.value = "********";
     }
     settingsModal.style.display = 'flex';
 });
 
 // כניסה/הרשמה
-showAuthFormButton.addEventListener('click', () => authFormSection.style.display = 'block');
 startGuestButton.addEventListener('click', () => {
     isGuestMode = true;
     showPage(homePage);
@@ -291,19 +366,31 @@ startGuestButton.addEventListener('click', () => {
 registerButton.addEventListener('click', async () => {
     const email = authEmailInput.value;
     const password = authPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    if (password !== confirmPassword) {
+        showMessage(authMessage, 'הסיסמאות אינן תואמות!', 'error');
+        return;
+    }
+
     try {
         await createUserWithEmailAndPassword(auth, email, password);
         showMessage(authMessage, 'הרשמה מוצלחת! אתה מחובר כעת.', 'success');
+        authEmailInput.value = '';
+        authPasswordInput.value = '';
+        confirmPasswordInput.value = '';
     } catch (error) {
         showMessage(authMessage, `שגיאת הרשמה: ${error.message}`, 'error');
     }
 });
 loginButton.addEventListener('click', async () => {
-    const email = authEmailInput.value;
-    const password = authPasswordInput.value;
+    const email = loginEmailInput.value;
+    const password = loginPasswordInput.value;
     try {
         await signInWithEmailAndPassword(auth, email, password);
         showMessage(authMessage, 'התחברות מוצלחת!', 'success');
+        loginEmailInput.value = '';
+        loginPasswordInput.value = '';
     } catch (error) {
         showMessage(authMessage, `שגיאת התחברות: ${error.message}`, 'error');
     }
@@ -316,22 +403,30 @@ googleLoginButton.addEventListener('click', async () => {
         showMessage(authMessage, `שגיאת התחברות עם גוגל: ${error.message}`, 'error');
     }
 });
+showLoginFormButton.addEventListener('click', () => {
+    registerFields.style.display = 'none';
+    loginFields.style.display = 'block';
+});
+showRegisterFormButton.addEventListener('click', () => {
+    registerFields.style.display = 'block';
+    loginFields.style.display = 'none';
+});
 
-// פונקציית התנתקות (חדשה)
-async function logoutUser() {
+// פונקציית התנתקות
+logoutButton.addEventListener('click', async () => {
     await signOut(auth);
     showPage(welcomePage);
+    document.body.classList.remove('logged-in');
     showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
-}
-logoutButton.addEventListener('click', logoutUser);
+});
 
-// פונקציית הצגת סיסמה עם אימות (חדשה)
+// פונקציית הצגת סיסמה
 showPasswordButton.addEventListener('click', () => {
-    if (userPasswordDisplay.type === 'password') {
-        userPasswordDisplay.type = 'text';
+    if (userPasswordInput.type === 'password') {
+        userPasswordInput.type = 'text';
         showPasswordButton.textContent = 'הסתר';
     } else {
-        userPasswordDisplay.type = 'password';
+        userPasswordInput.type = 'password';
         showPasswordButton.textContent = 'הצג';
     }
 });
@@ -349,12 +444,28 @@ addTransactionButton.addEventListener('click', async () => {
     }
 
     const newTransaction = {
+        id: Date.now().toString(), // יצירת ID זמני לפעולות אורח
         type,
         amount,
         description,
         date
     };
-    await saveTransaction(newTransaction);
+
+    // הוספת הפעולה לרשימה הנוכחית
+    transactions.push(newTransaction);
+    // שמירת הנתונים ב-LocalStorage או ב-Firebase
+    if (isGuestMode) {
+        localStorage.setItem('guestTransactions', JSON.stringify(transactions));
+    } else if (currentUser) {
+        const userId = currentUser.uid;
+        try {
+            const docRef = await addDoc(collection(db, 'users', userId, 'transactions'), newTransaction);
+            newTransaction.id = docRef.id; // עדכון ה-ID מהשרת
+        } catch (e) {
+            console.error("Error adding document: ", e);
+        }
+    }
+    updateUI(); // קריאה לפונקציה שמעדכנת את הממשק (כולל הטבלה)
     showMessage(transactionMessage, 'פעולה נוספה בהצלחה!', 'success');
     transactionAmountInput.value = '';
     transactionDescriptionInput.value = '';
@@ -375,63 +486,48 @@ addGoalButton.addEventListener('click', async () => {
         amount,
         saved: 0
     };
-    if (isGuestMode) {
-        goals.push(newGoal);
-        localStorage.setItem('guestGoals', JSON.stringify(goals));
-    } else if (currentUser) {
-        const userId = currentUser.uid;
-        try {
-            await addDoc(collection(db, 'users', userId, 'goals'), newGoal);
-        } catch (e) {
-            console.error("Error adding goal: ", e);
-        }
-    }
-    updateUI();
+    await addGoal(newGoal);
     showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
     goalNameInput.value = '';
     goalAmountInput.value = '';
 });
 
-// פונקציות מחיקת פעולה ויעד
 document.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('danger') && e.target.closest('table')) {
+    if (e.target.classList.contains('delete-transaction')) {
         const transactionId = e.target.dataset.id;
-        if (isGuestMode) {
-            transactions = transactions.filter(t => t.id !== transactionId);
-            localStorage.setItem('guestTransactions', JSON.stringify(transactions));
-        } else if (currentUser) {
-            try {
-                await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', transactionId));
-            } catch (e) {
-                console.error("Error deleting transaction: ", e);
-            }
-        }
-        updateUI();
+        await deleteTransaction(transactionId);
         showMessage(transactionMessage, 'פעולה נמחקה בהצלחה.', 'success');
     }
-    if (e.target.classList.contains('danger') && e.target.closest('.goals-list')) {
+    if (e.target.classList.contains('delete-goal')) {
         const goalId = e.target.dataset.id;
-        if (isGuestMode) {
-            goals = goals.filter(g => g.id !== goalId);
-            localStorage.setItem('guestGoals', JSON.stringify(goals));
-        } else if (currentUser) {
-            try {
-                await deleteDoc(doc(db, 'users', currentUser.uid, 'goals', goalId));
-            } catch (e) {
-                console.error("Error deleting goal: ", e);
-            }
-        }
-        updateUI();
+        await deleteGoal(goalId);
         showMessage(goalMessage, 'יעד נמחק בהצלחה.', 'success');
     }
 });
 
 
 filterButton.addEventListener('click', () => {
-    // קוד סינון
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+
+    if (!startDate || !endDate) {
+        showMessage(transactionMessage, 'אנא בחר תאריכי התחלה וסיום.', 'error');
+        return;
+    }
+
+    const filtered = transactions.filter(t => {
+        const transactionDate = t.date;
+        return transactionDate >= startDate && transactionDate <= endDate;
+    });
+
+    renderTransactionsTable(filtered);
+    updatePeriodSummary(filtered);
 });
 resetFilterButton.addEventListener('click', () => {
-    // קוד איפוס סינון
+    renderTransactionsTable(transactions);
+    updatePeriodSummary(transactions);
+    startDateInput.value = '';
+    endDateInput.value = '';
 });
 
 // --- התאמה אישית של עיצוב ---
@@ -478,7 +574,7 @@ window.addEventListener('load', () => {
     }
 
     if (isPWA) {
-        notificationStatus.textContent = 'ניתן לאפשר התראות! לחץ על הפעמון.';
+        notificationStatus.textContent = 'ניתן לאפשר התראות! לחץ על הכפתור למטה.';
         enableNotificationsButton.style.display = 'block';
     } else {
         notificationStatus.textContent = 'כדי לקבל התראות, הוסף את האתר למסך הבית שלך.';
@@ -487,7 +583,20 @@ window.addEventListener('load', () => {
 });
 
 enableNotificationsButton.addEventListener('click', () => {
-    console.log("User clicked to enable notifications.");
+    if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                notificationStatus.textContent = 'התראות אושרו בהצלחה! 🎉';
+                enableNotificationsButton.style.display = 'none';
+                // ניתן לשלוח התראת מבחן
+                new Notification('הכסף שלי', { body: 'התראות אפליקציה הופעלו בהצלחה!' });
+            } else {
+                notificationStatus.textContent = 'התראות נדחו או לא ניתנו. 😔';
+            }
+        });
+    } else {
+        notificationStatus.textContent = 'התראות לא נתמכות בדפדפן זה.';
+    }
 });
 
 // --- אימות וניהול משתמשים (Firebase) ---
@@ -499,11 +608,13 @@ onAuthStateChanged(auth, (user) => {
         homeGreeting.textContent = `שלום, ${currentUser.email}!`;
         showPage(homePage);
         loadUserData();
+        document.body.classList.add('logged-in'); // הוספת מחלקה לגוף הדף
     } else {
         currentUser = null;
         isGuestMode = false;
         console.log("משתמש לא מחובר.");
         showPage(welcomePage);
+        document.body.classList.remove('logged-in'); // הסרת המחלקה
     }
 });
 
