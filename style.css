@@ -1,53 +1,4 @@
-// ... (קוד קיים)
-
-// --- אימות וניהול משתמשים (Firebase) ---
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUser = user;
-        isGuestMode = false;
-        homeGreeting.textContent = `שלום, ${currentUser.email}!`;
-        showPage(homePage);
-        loadUserData();
-        document.body.classList.add('logged-in');
-        document.body.classList.remove('guest-mode');
-    } else {
-        currentUser = null;
-        if (!isGuestMode) {
-            homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
-            showPage(welcomePage);
-            document.body.classList.remove('logged-in');
-        } else {
-            homeGreeting.textContent = 'שלום, אורח!'; // הודעה למשתמש אורח
-            showPage(homePage);
-        }
-    }
-    // קריאה לפונקציה שמעדכנת את התצוגה של טפסי ההתחברות
-    updateAuthUI();
-});
-
-// ... (קוד קיים)
-
-logoutButton.addEventListener('click', async () => {
-    if (isGuestMode) {
-        isGuestMode = false;
-        localStorage.removeItem('guestTransactions');
-        localStorage.removeItem('guestGoals');
-        homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
-        showPage(welcomePage);
-        document.body.classList.remove('logged-in');
-        document.body.classList.remove('guest-mode');
-        showMessage(authMessage, 'התנתקת ממצב אורח.', 'success');
-    } else {
-        await signOut(auth);
-        homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
-        showPage(welcomePage);
-        document.body.classList.remove('logged-in');
-        document.body.classList.remove('guest-mode');
-        showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
-    }
-});
-
-// ... (שאר הקוד)import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth,
          createUserWithEmailAndPassword,
          signInWithEmailAndPassword,
@@ -386,11 +337,15 @@ settingsButton.addEventListener('click', () => {
     // הסתר/הצג שדות בהתאם למצב המשתמש
     if (isGuestMode) {
         userEmailDisplay.textContent = "אורח";
-        userPasswordInput.parentElement.style.display = 'none'; // הסתר שדה סיסמה
+        if (userPasswordInput.parentElement) {
+            userPasswordInput.parentElement.style.display = 'none'; // הסתר שדה סיסמה
+        }
         showPasswordButton.style.display = 'none'; // הסתר כפתור הצג/הסתר סיסמה
     } else if (currentUser) {
         userEmailDisplay.textContent = currentUser.email;
-        userPasswordInput.parentElement.style.display = 'block'; // הצג שדה סיסמה
+        if (userPasswordInput.parentElement) {
+            userPasswordInput.parentElement.style.display = 'block'; // הצג שדה סיסמה
+        }
         userPasswordInput.value = "********";
         showPasswordButton.style.display = 'inline-block'; // הצג כפתור
     }
@@ -399,7 +354,7 @@ settingsButton.addEventListener('click', () => {
 
 startGuestButton.addEventListener('click', () => {
     isGuestMode = true;
-    showPage(homePage);
+    showPage(homePage); // מעביר לדף הבית במקום דף ההתחברות
     loadUserData();
     showMessage(authMessage, `ברוך הבא, אורח!`, 'success');
     document.body.classList.add('logged-in');
@@ -478,12 +433,14 @@ logoutButton.addEventListener('click', async () => {
         isGuestMode = false;
         localStorage.removeItem('guestTransactions');
         localStorage.removeItem('guestGoals');
+        homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
         showPage(welcomePage);
         document.body.classList.remove('logged-in');
         document.body.classList.remove('guest-mode');
         showMessage(authMessage, 'התנתקת ממצב אורח.', 'success');
     } else {
         await signOut(auth);
+        homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
         showPage(welcomePage);
         document.body.classList.remove('logged-in');
         document.body.classList.remove('guest-mode');
@@ -675,11 +632,12 @@ onAuthStateChanged(auth, (user) => {
     } else {
         currentUser = null;
         if (!isGuestMode) {
+            homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
             showPage(welcomePage);
             document.body.classList.remove('logged-in');
         } else {
-            // אם במצב אורח, נשאר בדף הבית
-            showPage(homePage);
+            homeGreeting.textContent = 'שלום, אורח!'; // הודעה למשתמש אורח
+            showPage(homePage); // תיקון: במצב אורח, נשאר בדף הבית
         }
     }
     // קריאה לפונקציה שמעדכנת את התצוגה של טפסי ההתחברות
