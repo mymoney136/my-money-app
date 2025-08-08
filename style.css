@@ -1,153 +1,269 @@
-/* --- משתנים גלובליים --- */
+/* הגדרות כלליות ומאפיינים מותאמים אישית (CSS Variables) */
 :root {
-    --primary-color: #7289DA; /* כחול בהיר */
-    --secondary-color: #4CAF50; /* ירוק */
-    --danger-color: #F44336; /* אדום */
-    --text-color: #ffffff;
-    --background-color: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
-    --card-background: rgba(255, 255, 255, 0.15);
-    --card-background-hover: rgba(255, 255, 255, 0.25);
-    --border-color: rgba(255, 255, 255, 0.3);
-    --blur-effect: 15px;
-    --border-radius: 20px;
-    --box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --transition: all 0.3s ease-in-out;
-    --font-family: 'Heebo', Arial, sans-serif;
+    --primary-color: #7289DA; /* צבע ראשי של האפליקציה - כחול */
+    --secondary-color: #4CAF50; /* צבע משני - ירוק */
+    --background-color-light: #F0F2F5; /* רקע כללי בהיר */
+    --background-color-dark: #2a2a72; /* רקע כללי כהה */
+    --text-color-light: #333; /* צבע טקסט בהיר */
+    --text-color-dark: #f0f2f5; /* צבע טקסט כהה */
+    --card-background-light: rgba(255, 255, 255, 0.7); /* רקע כרטיס בהיר */
+    --card-background-dark: rgba(29, 29, 53, 0.7); /* רקע כרטיס כהה */
+    --border-color: rgba(255, 255, 255, 0.18); /* צבע גבול */
+    --input-background-light: rgba(255, 255, 255, 0.5); /* רקע קלט בהיר */
+    --input-background-dark: rgba(255, 255, 255, 0.1); /* רקע קלט כהה */
+    --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* הצללה */
+    --backdrop-filter: blur(10px); /* אפקט הטשטוש של הזכוכית */
+    --font-family: 'Heebo', sans-serif; /* פונט ברירת מחדל */
 }
 
-body.dark-theme {
-    --primary-color: #994dff;
-    --secondary-color: #6a1b9a;
-    --danger-color: #dc3545;
-    --background-color: linear-gradient(135deg, #1f0133 0%, #4a0072 100%);
-    --card-background: rgba(0, 0, 0, 0.3);
-    --card-background-hover: rgba(0, 0, 0, 0.4);
-    --border-color: rgba(255, 255, 255, 0.1);
+/* נושא כהה */
+.dark-theme {
+    background: linear-gradient(135deg, #2a2a72, #474787);
+    color: var(--text-color-dark);
 }
 
-/* --- כללי --- */
+.dark-theme .glass-card {
+    background: var(--card-background-dark);
+    box-shadow: var(--box-shadow);
+    backdrop-filter: var(--backdrop-filter);
+    border: 1px solid var(--border-color);
+}
+
+.dark-theme .glass-input {
+    background: var(--input-background-dark);
+    color: var(--text-color-dark);
+    border: 1px solid var(--border-color);
+}
+
+.dark-theme .glass-header, .dark-theme .glass-nav {
+    background: rgba(29, 29, 53, 0.8);
+    backdrop-filter: var(--backdrop-filter);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dark-theme .nav-button.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* נושא בהיר */
+.light-theme {
+    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    color: var(--text-color-light);
+}
+
+.light-theme .glass-card {
+    background: var(--card-background-light);
+    box-shadow: var(--box-shadow);
+    backdrop-filter: var(--backdrop-filter);
+    border: 1px solid var(--border-color);
+}
+
+.light-theme .glass-input {
+    background: var(--input-background-light);
+    color: var(--text-color-light);
+    border: 1px solid var(--border-color);
+}
+
+.light-theme .glass-header, .light-theme .glass-nav {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: var(--backdrop-filter);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.light-theme .nav-button.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* גופנים ואיפוס CSS */
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Poppins:wght@300;400;500;700&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html, body {
-    height: 100%;
-}
-
 body {
     font-family: var(--font-family);
-    direction: rtl;
-    background: var(--background-color);
-    color: var(--text-color);
     line-height: 1.6;
-    transition: var(--transition);
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
 }
 
-/* --- פריסה ודפים --- */
+/* מבנה כללי של העמוד */
 .page {
-    display: none;
-    flex-direction: column;
     width: 100%;
-    height: 100%;
+    max-width: 450px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
-    position: relative;
-    max-width: 800px;
+    overflow-x: hidden;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .page.active {
-    display: flex;
-}
-
-.welcome-page {
-    justify-content: center;
-    align-items: center;
+    opacity: 1;
+    pointer-events: all;
+    z-index: 10;
 }
 
 .main-content {
     flex: 1;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-/* --- עיצוב Glassmorphism --- */
+/* כרטיסי זכוכית */
 .glass-card {
-    background: var(--card-background);
-    backdrop-filter: blur(var(--blur-effect));
-    -webkit-backdrop-filter: blur(var(--blur-effect));
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
+    border-radius: 20px;
     padding: 20px;
-    box-shadow: var(--box-shadow);
-    margin-bottom: 20px;
-    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
 }
 
 .glass-card:hover {
-    background: var(--card-background-hover);
+    transform: translateY(-5px);
 }
 
+/* כותרות וניווט */
 .glass-header, .glass-nav {
-    background: var(--card-background);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    border-bottom: 1px solid var(--border-color);
-    text-align: center;
     position: sticky;
-    z-index: 10;
+    top: 0;
+    z-index: 20;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
 }
 
-.glass-header {
-    padding: 15px;
-    top: 0;
+.glass-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color-dark);
 }
 
 .glass-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 10px 5px;
+    border-radius: 10px;
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px;
-    top: 60px; /* מתחת לכותרת */
-    border-top: 1px solid var(--border-color);
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.glass-input, .glass-input-small, .currency-selector {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 12px;
+.nav-button img {
+    width: 24px;
+    height: 24px;
+}
+
+.nav-button:hover {
+    transform: scale(1.05);
+}
+
+/* אלמנטים של טופס */
+.glass-input, .glass-input-small {
+    padding: 12px 15px;
     border-radius: 12px;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    font-size: 1rem;
     width: 100%;
-    margin: 8px 0;
-    transition: var(--transition);
-}
-
-.glass-input-small, .currency-selector {
-    width: auto;
-    padding: 8px;
-    display: inline-block;
-}
-
-.glass-input:focus, .glass-input-small:focus, .currency-selector:focus {
     outline: none;
-    border-color: var(--primary-color);
+}
+
+.glass-input-small {
+    width: auto;
+    padding: 8px 12px;
 }
 
 .glass-input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.5);
 }
 
-/* --- כפתורים וטקסט --- */
-.logo {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 10px;
+/* כפתורים */
+.button {
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button.round {
+    border-radius: 25px;
+}
+
+.button.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.button.secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.button.danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.button.google {
+    background-color: white;
+    color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.button.google img {
+    width: 20px;
+}
+
+.button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* מסגרות ספציפיות */
+.welcome-container {
+    padding: 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .header-logo {
@@ -162,115 +278,27 @@ body {
     height: 50px;
 }
 
-.welcome-container {
-    max-width: 450px;
-    width: 90%;
-    text-align: center;
-}
-
-.button {
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: var(--transition);
-    margin: 5px 0;
-    font-weight: bold;
-}
-
-.button.round {
-    border-radius: 50px;
-}
-
-.button.primary {
-    background-color: var(--primary-color);
-    color: white;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.button.primary:hover {
-    transform: translateY(-2px);
-    background-color: #6272b5;
-    box-shadow: 0 6px 8px rgba(0,0,0,0.3);
-}
-
-.button.secondary {
-    background-color: var(--secondary-color);
-    color: white;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.button.secondary:hover {
-    transform: translateY(-2px);
-    background-color: #43a047;
-    box-shadow: 0 6px 8px rgba(0,0,0,0.3);
-}
-
-.button.google {
-    background-color: #EA4335;
-    color: white;
+#auth-form-section {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.button.google img {
-    width: 20px;
-}
-
-.button.google:hover {
-    background-color: #d83125;
-}
-
-.button.danger {
-    background-color: var(--danger-color);
-    color: white;
-}
-
-.button.danger:hover {
-    background-color: #c82333;
-}
-
-.nav-button {
-    background: transparent;
-    color: var(--text-color);
-    border: none;
-    padding: 10px 15px;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 1.1em;
-}
-
-.nav-button img {
-    width: 24px;
-}
-
-.nav-button.active {
-    background-color: var(--card-background-hover);
-    border-radius: 12px;
-}
-
-.nav-button:hover:not(.active) {
-    transform: translateY(-2px);
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .auth-divider {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
     position: relative;
-    margin: 20px 0;
-    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
 }
 
-.auth-divider::before,
-.auth-divider::after {
+.auth-divider::before, .auth-divider::after {
     content: '';
     position: absolute;
     top: 50%;
-    width: 40%;
+    width: 30%;
     height: 1px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .auth-divider::before {
@@ -281,79 +309,91 @@ body {
     right: 0;
 }
 
-.auth-form-section {
-    margin-top: 20px;
-}
-
 .toggle-auth-text {
-    margin-top: 15px;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin-top: 10px;
 }
 
 .toggle-auth-text span {
     color: var(--primary-color);
+    text-decoration: underline;
     cursor: pointer;
-    font-weight: bold;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* הודעות שגיאה והצלחה */
+.message {
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.message.error {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.message.success {
+    background-color: #27ae60;
+    color: white;
+}
+
+.message.info {
+    background-color: #3498db;
+    color: white;
+}
+
+/* עיצובים נוספים לדפים */
+.balance-section h2, .goals-section h2, .notifications-section h2, .transaction-form-section h2, .graphs-container h2 {
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
 .balance-amount {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--primary-color);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
 }
 
 .currency-selector-container {
     display: flex;
     align-items: center;
+    gap: 10px;
+}
+
+.goals-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.goals-list li {
+    display: flex;
     justify-content: space-between;
-}
-
-.currency-selector {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-color);
-}
-
-.currency-selector option {
-    background-color: #2a2a72;
-    color: white;
-}
-
-.message {
+    align-items: center;
     padding: 10px;
+    background: var(--input-background-dark);
     border-radius: 10px;
-    margin-top: 10px;
-    font-weight: bold;
-    text-align: center;
 }
 
-.message.success {
-    background-color: #4CAF50;
-    color: white;
+.goals-list li strong {
+    flex: 1;
 }
 
-.message.error {
-    background-color: #F44336;
-    color: white;
+.transactions-table-container {
+    overflow-x: auto;
+    width: 100%;
 }
 
-.message.info {
-    background-color: #2196F3;
-    color: white;
-}
-
-.hidden {
-    display: none;
-}
-
-/* --- טבלאות --- */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-    background: var(--card-background);
-    border-radius: var(--border-radius);
-    overflow: hidden;
+    margin-top: 15px;
 }
 
 th, td {
@@ -363,22 +403,29 @@ th, td {
 }
 
 th {
-    background-color: rgba(0, 0, 0, 0.3);
-    color: white;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .income {
-    color: #4CAF50;
-    font-weight: bold;
+    color: var(--secondary-color);
 }
 
 .expense {
-    color: var(--danger-color);
-    font-weight: bold;
+    color: #e74c3c;
 }
 
-/* --- מודלים וגרפים --- */
+.period-summary {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* מודל הגדרות */
 .modal {
     position: fixed;
     z-index: 100;
@@ -386,65 +433,70 @@ th {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .modal-content {
-    max-width: 500px;
+    padding: 30px;
     width: 90%;
-    color: var(--text-color);
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     position: relative;
 }
 
 .close-button {
-    color: #fff;
     position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 28px;
+    top: 15px;
+    right: 25px;
+    font-size: 2rem;
     font-weight: bold;
     cursor: pointer;
+    color: var(--text-color-dark);
 }
 
 .settings-section {
-    margin-top: 20px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 20px;
-}
-
-.password-field-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.password-field-container input {
-    flex: 1;
-}
-
-.chart-container {
-    position: relative;
-    height: 400px;
-    width: 100%;
-}
-
-.goals-list-container, .transactions-list-section, .filter-controls, .period-summary {
-    margin-top: 20px;
-}
-
-.goals-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
     border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
+.settings-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.settings-section label {
+    display: inline-flex;
     align-items: center;
+    gap: 5px;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+/* תמיכה בכיווניות */
+html[dir="rtl"] {
+    text-align: right;
+}
+
+html[dir="rtl"] .main-content {
+    text-align: right;
+}
+
+html[dir="rtl"] th, html[dir="rtl"] td {
+    text-align: right;
+}
+
+html[dir="rtl"] .auth-divider::before {
+    left: auto;
+    right: 0;
+}
+
+html[dir="rtl"] .auth-divider::after {
+    left: 0;
+    right: auto;
 }

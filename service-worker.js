@@ -1,43 +1,53 @@
-const CACHE_NAME = 'my-money-cache-v2';
+const CACHE_NAME = 'my-money-cache-v1';
 const urlsToCache = [
-    '/my-money-app/',
-    '/my-money-app/index.html',
-    '/my-money-app/style.css',
-    '/my-money-app/app.js',
-    '/my-money-app/manifest.json',
-    '/my-money-app/logo.png',
-    '/my-money-app/logo192.png',
-    '/my-money-app/logo512.png',
-    '/my-money-app/favicon.ico',
-    '/my-money-app/home-icon.svg',
-    '/my-money-app/wallet-icon.svg',
-    '/my-money-app/chart-icon.svg',
-    '/my-money-app/settings-icon.svg',
-    '/my-money-app/google-icon.svg',
+    '/',
+    '/index.html',
+    '/style.css',
+    '/app.js',
+    '/languages.js',
+    '/manifest.json',
+    '/logo.png',
+    '/google-icon.svg',
+    '/home-icon.svg',
+    '/wallet-icon.svg',
+    '/chart-icon.svg',
+    '/settings-icon.svg',
     'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
 self.addEventListener('install', event => {
-    console.log('[Service Worker] Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[Service Worker] Caching all content');
-                return cache.addAll(urlsToCache);
-            })
-            .catch(err => console.error('[Service Worker] Cache install failed:', err))
+        .then(cache => {
+            console.log('Opened cache');
+            return cache.addAll(urlsToCache);
+        })
     );
 });
 
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
-            .catch(err => console.error('[Service Worker] Fetch failed:', err))
+        .then(response => {
+            if (response) {
+                return response;
+            }
+            return fetch(event.request);
+        })
+    );
+});
+
+self.addEventListener('activate', event => {
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
     );
 });

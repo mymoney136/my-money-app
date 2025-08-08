@@ -16,6 +16,7 @@ import { getFirestore,
          doc,
          updateDoc,
          setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import translations from './languages.js';
 
 // הגדרות Firebase שלך
 const firebaseConfig = {
@@ -109,6 +110,8 @@ const mainColorInput = document.getElementById('main-color-input');
 const accentColorInput = document.getElementById('accent-color-input');
 const fontSelector = document.getElementById('font-selector');
 const baseCurrencySelector = document.getElementById('base-currency-selector');
+const languageSelector = document.getElementById('language-selector');
+const passwordFieldContainer = document.querySelector('.password-field-container');
 
 const expensesPieChartCtx = document.getElementById('expenses-pie-chart')?.getContext('2d');
 let expensesPieChart;
@@ -121,14 +124,50 @@ let settings = JSON.parse(localStorage.getItem('settings')) || {
     mainColor: '#7289DA',
     accentColor: '#4CAF50',
     font: 'Heebo',
-    baseCurrency: 'ILS'
+    baseCurrency: 'ILS',
+    language: 'he'
 };
 let currentUser = null;
 let isGuestMode = false;
 let isPWA = false;
 let rates = {};
+let allCurrencies = {};
 
 // --- פונקציות עזר כלליות ---
+function setLanguage(lang) {
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const [attr, textKey] = key.startsWith('[') ? key.substring(1, key.length - 1).split(']') : [null, key];
+        
+        if (attr) {
+            if (translations[lang][textKey]) {
+                element.setAttribute(attr, translations[lang][textKey]);
+            }
+        } else {
+            const nestedKeys = key.split('.');
+            let translatedText = translations[lang];
+            for (const nestedKey of nestedKeys) {
+                translatedText = translatedText ? translatedText[nestedKey] : undefined;
+            }
+            if (translatedText) {
+                element.textContent = translatedText;
+            }
+        }
+    });
+    
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+    
+    if (homeGreeting) {
+        homeGreeting.textContent = isGuestMode 
+            ? translations[lang].home.greeting_guest 
+            : `${translations[lang].home.greeting_user} ${currentUser?.email || ''}`;
+    }
+    
+    updateUI();
+}
+
 function showPage(pageId) {
     pages.forEach(page => page.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
@@ -151,12 +190,15 @@ function applySettings() {
 
     document.body.className = settings.theme === 'dark' ? 'dark-theme' : 'light-theme';
 
-    themeDarkRadio.checked = settings.theme === 'dark';
-    themeLightRadio.checked = settings.theme === 'light';
-    mainColorInput.value = settings.mainColor;
-    accentColorInput.value = settings.accentColor;
-    fontSelector.value = settings.font;
-    baseCurrencySelector.value = settings.baseCurrency;
+    if (themeDarkRadio) themeDarkRadio.checked = settings.theme === 'dark';
+    if (themeLightRadio) themeLightRadio.checked = settings.theme === 'light';
+    if (mainColorInput) mainColorInput.value = settings.mainColor;
+    if (accentColorInput) accentColorInput.value = settings.accentColor;
+    if (fontSelector) fontSelector.value = settings.font;
+    if (baseCurrencySelector) baseCurrencySelector.value = settings.baseCurrency;
+    if (languageSelector) languageSelector.value = settings.language;
+    
+    setLanguage(settings.language);
 }
 
 function saveSettings() {
@@ -170,15 +212,38 @@ async function fetchExchangeRates() {
         const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
         const data = await response.json();
         rates = data.rates;
+        
+        const allCurrenciesList = Object.keys(rates);
+        allCurrenciesList.forEach(currency => {
+            allCurrencies[currency] = currency;
+        });
+        
+        populateCurrencySelectors();
+        updateUI();
     } catch (error) {
         console.error("Error fetching exchange rates:", error);
     }
 }
 
+function populateCurrencySelectors() {
+    [homeCurrencySelector, moneyPageCurrencySelector, transactionCurrencySelect, baseCurrencySelector].forEach(selector => {
+        if (!selector) return;
+        selector.innerHTML = '';
+        const currencies = Object.keys(allCurrencies).sort();
+        currencies.forEach(currency => {
+            const option = document.createElement('option');
+            option.value = currency;
+            option.textContent = `${currency} - ${translations[settings.language].currencies[currency] || currency}`;
+            selector.appendChild(option);
+        });
+        selector.value = settings.baseCurrency;
+    });
+}
+
 function convertToBaseCurrency(amount, currency) {
-    if (!rates[settings.baseCurrency] || !rates[currency]) {
+    if (!rates || Object.keys(rates).length === 0 || !rates[settings.baseCurrency] || !rates[currency]) {
         console.error("Missing exchange rate data");
-        return amount; // Fallback
+        return amount;
     }
     const rateToUSD = 1 / rates[currency];
     const rateFromUSD = rates[settings.baseCurrency];
@@ -187,6 +252,9 @@ function convertToBaseCurrency(amount, currency) {
 
 // --- ניהול נתונים (Firebase / Local Storage) ---
 async function loadUserData() {
+    transactions = [];
+    goals = [];
+
     if (isGuestMode) {
         transactions = JSON.parse(localStorage.getItem('guestTransactions')) || [];
         goals = JSON.parse(localStorage.getItem('guestGoals')) || [];
@@ -260,7 +328,7 @@ async function deleteGoal(goalId) {
             await deleteDoc(doc(db, 'users', currentUser.uid, 'goals', goalId));
         } catch (e) {
             console.error("Error deleting goal: ", e);
-        }
+    }
     }
     updateUI();
 }
@@ -283,10 +351,10 @@ function renderTransactionsTable(transactionsToRender) {
         row.innerHTML = `
             <td>${t.date}</td>
             <td class="${t.type}">${parseFloat(t.amount).toFixed(2)} ${t.currency}</td>
-            <td>${t.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
+            <td>${translations[settings.language][`budget.transaction_type_${t.type}`]}</td>
             <td>${t.description || ''}</td>
             <td>
-                <button class="button danger small-button delete-transaction" data-id="${t.id}">מחק</button>
+                <button class="button danger small-button delete-transaction" data-id="${t.id}">${translations[settings.language]['budget.delete_button']}</button>
             </td>
         `;
         transactionsTableBody.appendChild(row);
@@ -299,10 +367,10 @@ function renderGoalsList(goalsToRender) {
         const li = document.createElement('li');
         li.innerHTML = `
             <div>
-                <strong>${g.name}</strong> - יעד: ${parseFloat(g.amount).toFixed(2)} ${settings.baseCurrency}
+                <strong>${g.name}</strong> - ${translations[settings.language]['home.goal_target']}: ${parseFloat(g.amount).toFixed(2)} ${settings.baseCurrency}
             </div>
             <div class="goal-actions">
-                <button class="button round danger delete-goal-button" data-id="${g.id}">מחק</button>
+                <button class="button round danger delete-goal-button" data-id="${g.id}">${translations[settings.language]['home.delete_button']}</button>
             </div>
         `;
         goalsList.appendChild(li);
@@ -310,8 +378,10 @@ function renderGoalsList(goalsToRender) {
 }
 
 function updateBalances() {
-    const selectedCurrencyHome = homeCurrencySelector.value;
-    const selectedCurrencyMyMoney = moneyPageCurrencySelector.value;
+    if (!rates || Object.keys(rates).length === 0) return;
+
+    const selectedCurrencyHome = homeCurrencySelector?.value || settings.baseCurrency;
+    const selectedCurrencyMyMoney = moneyPageCurrencySelector?.value || settings.baseCurrency;
     let balanceInBase = 0;
 
     transactions.forEach(t => {
@@ -322,9 +392,13 @@ function updateBalances() {
             balanceInBase -= amountInBase;
         }
     });
+    
+    const rateToHome = rates[selectedCurrencyHome] || 1;
+    const rateToMyMoney = rates[selectedCurrencyMyMoney] || 1;
+    const rateFromBase = 1 / rates[settings.baseCurrency];
 
-    const balanceHome = convertToBaseCurrency(balanceInBase, settings.baseCurrency) / (rates[selectedCurrencyHome] / rates[settings.baseCurrency]);
-    const balanceMyMoney = convertToBaseCurrency(balanceInBase, settings.baseCurrency) / (rates[selectedCurrencyMyMoney] / rates[settings.baseCurrency]);
+    const balanceHome = (balanceInBase * rateToHome) * rateFromBase;
+    const balanceMyMoney = (balanceInBase * rateToMyMoney) * rateFromBase;
     
     if (currentBalanceDisplayHome) currentBalanceDisplayHome.textContent = `${balanceHome.toFixed(2)} ${selectedCurrencyHome}`;
     if (currentBalanceDisplayMyMoney) currentBalanceDisplayMyMoney.textContent = `${balanceMyMoney.toFixed(2)} ${selectedCurrencyMyMoney}`;
@@ -352,13 +426,13 @@ function updatePeriodSummary(filteredTransactions = transactions) {
     if (periodSummaryReport) {
         if (periodBalance > 0) {
             periodSummaryReport.className = 'message success';
-            periodSummaryReport.textContent = 'כל הכבוד! נשאר לך עודף בתקופה זו.';
+            periodSummaryReport.textContent = translations[settings.language]['budget.summary_good'];
         } else if (periodBalance === 0) {
             periodSummaryReport.className = 'message info';
-            periodSummaryReport.textContent = 'סיימת את התקופה באיזון.';
+            periodSummaryReport.textContent = translations[settings.language]['budget.summary_neutral'];
         } else {
             periodSummaryReport.className = 'message error';
-            periodSummaryReport.textContent = 'שים לב, נכנסת למינוס בתקופה זו.';
+            periodSummaryReport.textContent = translations[settings.language]['budget.summary_bad'];
         }
         periodSummaryReport.classList.remove('hidden');
     }
@@ -368,7 +442,7 @@ function updatePeriodSummary(filteredTransactions = transactions) {
 function renderGraphs() {
     const expenseCategories = {};
     transactions.filter(t => t.type === 'expense').forEach(t => {
-        const category = t.description || 'אחר';
+        const category = t.description || translations[settings.language]['graphs.other_category'];
         const amountInBase = convertToBaseCurrency(t.amount, t.currency);
         if (!expenseCategories[category]) {
             expenseCategories[category] = 0;
@@ -382,28 +456,30 @@ function renderGraphs() {
     if (expensesPieChart) {
         expensesPieChart.destroy();
     }
-
-    expensesPieChart = new Chart(expensesPieChartCtx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
-                ],
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top', labels: { color: settings.theme === 'dark' ? 'white' : 'black' } },
-                title: { display: true, text: 'הוצאות לפי קטגוריות', color: settings.theme === 'dark' ? 'white' : 'black' }
+    
+    if (expensesPieChartCtx) {
+        expensesPieChart = new Chart(expensesPieChartCtx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#E7E9ED', '#8B5CF6'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { color: settings.theme === 'dark' ? 'white' : 'black' } },
+                    title: { display: true, text: translations[settings.language]['graphs.expenses_by_category'], color: settings.theme === 'dark' ? 'white' : 'black' }
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 // --- אירועי לחיצות (Event Listeners) ---
@@ -414,82 +490,72 @@ function attachEventListeners() {
             button.classList.add('active');
             
             let pageId = button.id.replace('-button', '').replace('-2', '').replace('-3', '') + '-page';
-            if (pageId === 'home-page') showPage('home-page');
-            else if (pageId === 'my-money-page') showPage('budget-management-page');
-            else if (pageId === 'graphs-page') showPage('graphs-page');
+            if (pageId === 'my-money-page') pageId = 'budget-management-page';
+            showPage(pageId);
         });
     });
 
-    settingsButton.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-    settingsButton2.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-    settingsButton3.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-    
-    closeModalButton.addEventListener('click', () => settingsModal.classList.add('hidden'));
-
-    startGuestButton.addEventListener('click', () => {
-        isGuestMode = true;
-        homeGreeting.textContent = 'שלום, אורח!';
-        showPage('home-page');
-        loadUserData();
-        authFormSection.classList.add('hidden');
+    [settingsButton, settingsButton2, settingsButton3].forEach(btn => {
+        if(btn) btn.addEventListener('click', showSettingsModal);
     });
 
-    showRegisterFormButton.addEventListener('click', () => {
+    if (closeModalButton) closeModalButton.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+    if (startGuestButton) startGuestButton.addEventListener('click', () => {
+        isGuestMode = true;
+        authFormSection.classList.add('hidden');
+        if (homeGreeting) homeGreeting.textContent = translations[settings.language]['home.greeting_guest'];
+        showPage('home-page');
+        loadUserData();
+    });
+
+    if (showRegisterFormButton) showRegisterFormButton.addEventListener('click', () => {
         registerFields.classList.remove('hidden');
         loginFields.classList.add('hidden');
     });
     
-    showLoginFormButton.addEventListener('click', () => {
+    if (showLoginFormButton) showLoginFormButton.addEventListener('click', () => {
         registerFields.classList.add('hidden');
         loginFields.classList.remove('hidden');
     });
 
-    registerButton.addEventListener('click', async () => {
+    if (registerButton) registerButton.addEventListener('click', async () => {
         const email = authEmailInput.value;
         const password = authPasswordInput.value;
         const confirmPassword = confirmPasswordInput.value;
         if (password !== confirmPassword) {
-            showMessage(authMessage, 'הסיסמאות אינן תואמות!', 'error');
-            return;
-        }
-        if (!validateEmail(email)) {
-            showMessage(authMessage, 'אנא הכנס כתובת אימייל חוקית.', 'error');
+            showMessage(authMessage, translations[settings.language]['messages.password_mismatch'], 'error');
             return;
         }
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            showMessage(authMessage, 'הרשמה מוצלחת! אתה מחובר כעת.', 'success');
-            authEmailInput.value = '';
-            authPasswordInput.value = '';
-            confirmPasswordInput.value = '';
+            showMessage(authMessage, translations[settings.language]['messages.register_success'], 'success');
         } catch (error) {
-            showMessage(authMessage, `שגיאת הרשמה: ${error.message}`, 'error');
+            showMessage(authMessage, `${translations[settings.language]['messages.register_error']}: ${error.message}`, 'error');
         }
     });
 
-    loginButton.addEventListener('click', async () => {
+    if (loginButton) loginButton.addEventListener('click', async () => {
         const email = loginEmailInput.value;
         const password = loginPasswordInput.value;
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            showMessage(authMessage, 'התחברות מוצלחת!', 'success');
-            loginEmailInput.value = '';
-            loginPasswordInput.value = '';
+            showMessage(authMessage, translations[settings.language]['messages.login_success'], 'success');
         } catch (error) {
-            showMessage(authMessage, `שגיאת התחברות: ${error.message}`, 'error');
+            showMessage(authMessage, `${translations[settings.language]['messages.login_error']}: ${error.message}`, 'error');
         }
     });
 
-    googleLoginButton.addEventListener('click', async () => {
+    if (googleLoginButton) googleLoginButton.addEventListener('click', async () => {
         try {
             await signInWithPopup(auth, googleProvider);
-            showMessage(authMessage, 'התחברות עם גוגל מוצלחת!', 'success');
+            showMessage(authMessage, translations[settings.language]['messages.google_login_success'], 'success');
         } catch (error) {
-            showMessage(authMessage, `שגיאת התחברות עם גוגל: ${error.message}`, 'error');
+            showMessage(authMessage, `${translations[settings.language]['messages.google_login_error']}: ${error.message}`, 'error');
         }
     });
 
-    logoutButton.addEventListener('click', async () => {
+    if (logoutButton) logoutButton.addEventListener('click', async () => {
         if (isGuestMode) {
             isGuestMode = false;
             localStorage.removeItem('guestTransactions');
@@ -504,17 +570,17 @@ function attachEventListeners() {
         settingsModal.classList.add('hidden');
     });
 
-    togglePasswordButton.addEventListener('click', () => {
+    if (togglePasswordButton) togglePasswordButton.addEventListener('click', () => {
         if (userPasswordInput.type === 'password') {
             userPasswordInput.type = 'text';
-            togglePasswordButton.textContent = 'הסתר';
+            togglePasswordButton.textContent = translations[settings.language]['settings.hide_password'];
         } else {
             userPasswordInput.type = 'password';
-            togglePasswordButton.textContent = 'הצג';
+            togglePasswordButton.textContent = translations[settings.language]['settings.show_password'];
         }
     });
 
-    transactionForm.addEventListener('submit', async (e) => {
+    if (transactionForm) transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const type = transactionTypeSelect.value;
         const currency = transactionCurrencySelect.value;
@@ -523,13 +589,13 @@ function attachEventListeners() {
         const date = transactionDateInput.value;
 
         if (!amount || !date || isNaN(amount)) {
-            showMessage(transactionMessage, 'אנא מלא סכום ותאריך', 'error');
+            showMessage(transactionMessage, translations[settings.language]['messages.fill_amount_date'], 'error');
             return;
         }
 
         const newTransaction = { type, amount, currency, description, date };
         await saveTransaction(newTransaction);
-        showMessage(transactionMessage, 'פעולה נוספה בהצלחה!', 'success');
+        showMessage(transactionMessage, translations[settings.language]['messages.transaction_added'], 'success');
         transactionForm.reset();
     });
 
@@ -537,47 +603,47 @@ function attachEventListeners() {
         if (e.target.classList.contains('delete-transaction')) {
             const transactionId = e.target.dataset.id;
             await deleteTransaction(transactionId);
-            showMessage(transactionMessage, 'פעולה נמחקה בהצלחה.', 'success');
+            showMessage(transactionMessage, translations[settings.language]['messages.transaction_deleted'], 'success');
         }
         if (e.target.classList.contains('delete-goal-button')) {
             const goalId = e.target.dataset.id;
             await deleteGoal(goalId);
-            showMessage(goalMessage, 'יעד נמחק בהצלחה.', 'success');
+            showMessage(goalMessage, translations[settings.language]['messages.goal_deleted'], 'success');
         }
     });
 
-    toggleTransactionsTable.addEventListener('click', () => {
+    if (toggleTransactionsTable) toggleTransactionsTable.addEventListener('click', () => {
         transactionsTableContainer.classList.toggle('hidden');
     });
 
-    addGoalBtn.addEventListener('click', () => {
+    if (addGoalBtn) addGoalBtn.addEventListener('click', () => {
         addGoalForm.classList.remove('hidden');
         addGoalBtn.classList.add('hidden');
     });
 
-    saveGoalButton.addEventListener('click', async () => {
+    if (saveGoalButton) saveGoalButton.addEventListener('click', async () => {
         const name = goalNameInput.value;
         const amount = parseFloat(goalAmountInput.value);
 
         if (!name || !amount || isNaN(amount)) {
-            showMessage(goalMessage, 'אנא מלא שם וסכום ליעד', 'error');
+            showMessage(goalMessage, translations[settings.language]['messages.fill_goal_details'], 'error');
             return;
         }
         const newGoal = { name, amount };
         await addGoal(newGoal);
-        showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
+        showMessage(goalMessage, translations[settings.language]['messages.goal_added'], 'success');
         goalNameInput.value = '';
         goalAmountInput.value = '';
         addGoalForm.classList.add('hidden');
         addGoalBtn.classList.remove('hidden');
     });
 
-    filterButton.addEventListener('click', () => {
+    if (filterButton) filterButton.addEventListener('click', () => {
         const startDate = startDateInput.value;
         const endDate = endDateInput.value;
 
         if (!startDate || !endDate) {
-            showMessage(transactionMessage, 'אנא בחר תאריכי התחלה וסיום.', 'error');
+            showMessage(transactionMessage, translations[settings.language]['messages.select_date_range'], 'error');
             return;
         }
         const filtered = transactions.filter(t => t.date >= startDate && t.date <= endDate);
@@ -585,7 +651,7 @@ function attachEventListeners() {
         updatePeriodSummary(filtered);
     });
 
-    resetFilterButton.addEventListener('click', () => {
+    if (resetFilterButton) resetFilterButton.addEventListener('click', () => {
         renderTransactionsTable(transactions);
         updatePeriodSummary();
         startDateInput.value = '';
@@ -593,42 +659,57 @@ function attachEventListeners() {
     });
 
     // שינוי הגדרות
-    themeDarkRadio.addEventListener('change', () => { settings.theme = 'dark'; saveSettings(); });
-    themeLightRadio.addEventListener('change', () => { settings.theme = 'light'; saveSettings(); });
-    mainColorInput.addEventListener('input', (e) => { settings.mainColor = e.target.value; saveSettings(); });
-    accentColorInput.addEventListener('input', (e) => { settings.accentColor = e.target.value; saveSettings(); });
-    fontSelector.addEventListener('change', (e) => { settings.font = e.target.value; saveSettings(); });
-    baseCurrencySelector.addEventListener('change', (e) => {
+    if (themeDarkRadio) themeDarkRadio.addEventListener('change', () => { settings.theme = 'dark'; saveSettings(); });
+    if (themeLightRadio) themeLightRadio.addEventListener('change', () => { settings.theme = 'light'; saveSettings(); });
+    if (mainColorInput) mainColorInput.addEventListener('input', (e) => { settings.mainColor = e.target.value; saveSettings(); });
+    if (accentColorInput) accentColorInput.addEventListener('input', (e) => { settings.accentColor = e.target.value; saveSettings(); });
+    if (fontSelector) fontSelector.addEventListener('change', (e) => { settings.font = e.target.value; saveSettings(); });
+    if (baseCurrencySelector) baseCurrencySelector.addEventListener('change', (e) => {
         settings.baseCurrency = e.target.value;
         saveSettings();
-        // עדכון סלקטורים אחרים
-        homeCurrencySelector.value = e.target.value;
-        moneyPageCurrencySelector.value = e.target.value;
+        if (homeCurrencySelector) homeCurrencySelector.value = e.target.value;
+        if (moneyPageCurrencySelector) moneyPageCurrencySelector.value = e.target.value;
     });
     
-    homeCurrencySelector.addEventListener('change', updateBalances);
-    moneyPageCurrencySelector.addEventListener('change', updateBalances);
+    if (languageSelector) languageSelector.addEventListener('change', (e) => {
+        settings.language = e.target.value;
+        saveSettings();
+    });
 
-    enableNotificationsButton.addEventListener('click', () => {
+    if (homeCurrencySelector) homeCurrencySelector.addEventListener('change', updateBalances);
+    if (moneyPageCurrencySelector) moneyPageCurrencySelector.addEventListener('change', updateBalances);
+
+    if (enableNotificationsButton) enableNotificationsButton.addEventListener('click', () => {
         if ('Notification' in window && 'serviceWorker' in navigator) {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
-                    notificationStatus.textContent = 'התראות אושרו! 🎉';
-                    enableNotificationsButton.classList.add('hidden');
-                    new Notification('הכסף שלי', { body: 'התראות אפליקציה הופעלו בהצלחה!' });
+                    if (notificationStatus) {
+                        notificationStatus.textContent = translations[settings.language]['notifications.granted'];
+                        enableNotificationsButton.classList.add('hidden');
+                    }
+                    new Notification(translations[settings.language]['app.title'], { body: translations[settings.language]['notifications.enabled_message'] });
                 } else {
-                    notificationStatus.textContent = 'התראות נדחו. 😔';
+                    if (notificationStatus) notificationStatus.textContent = translations[settings.language]['notifications.denied'];
                 }
             });
         } else {
-            notificationStatus.textContent = 'התראות לא נתמכות בדפדפן זה.';
+            if (notificationStatus) {
+                notificationStatus.textContent = translations[settings.language]['notifications.not_supported'];
+                enableNotificationsButton.classList.add('hidden');
+            }
         }
     });
 }
 
-function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+function showSettingsModal() {
+    if (isGuestMode) {
+        if (userEmailDisplay) userEmailDisplay.textContent = `${translations[settings.language]['settings.email_label']}: ${translations[settings.language]['settings.guest_email']}`;
+        if (passwordFieldContainer) passwordFieldContainer.classList.add('hidden');
+    } else if (currentUser) {
+        if (userEmailDisplay) userEmailDisplay.textContent = `${translations[settings.language]['settings.email_label']}: ${currentUser.email}`;
+        if (passwordFieldContainer) passwordFieldContainer.classList.remove('hidden');
+    }
+    settingsModal.classList.remove('hidden');
 }
 
 // --- אימות וניהול משתמשים (Firebase) ---
@@ -636,28 +717,26 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
         isGuestMode = false;
-        homeGreeting.textContent = `שלום, ${currentUser.email}!`;
-        userEmailDisplay.textContent = currentUser.email;
+        if (homeGreeting) homeGreeting.textContent = `${translations[settings.language]['home.greeting_user']} ${currentUser.email}!`;
+        if (userEmailDisplay) userEmailDisplay.textContent = `${translations[settings.language]['settings.email_label']}: ${currentUser.email}`;
         showPage('home-page');
         loadUserData();
-        authFormSection.classList.add('hidden');
-        userPasswordInput.disabled = false;
+        if (authFormSection) authFormSection.classList.add('hidden');
     } else {
         currentUser = null;
         if (!isGuestMode) {
-            homeGreeting.textContent = 'שלום!';
+            if (homeGreeting) homeGreeting.textContent = translations[settings.language]['home.greeting_user'];
             showPage('welcome-page');
-            authFormSection.classList.remove('hidden');
+            if (authFormSection) authFormSection.classList.remove('hidden');
         }
-        userEmailDisplay.textContent = '';
-        userPasswordInput.disabled = true;
+        if (userEmailDisplay) userEmailDisplay.textContent = '';
     }
 });
 
 // --- PWA ו-Service Worker ---
 window.addEventListener('load', () => {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/my-money-app/service-worker.js').then(reg => {
+        navigator.serviceWorker.register('/service-worker.js').then(reg => {
             console.log('Service Worker registered!');
         }).catch(err => {
             console.error('Service Worker registration failed:', err);
@@ -670,15 +749,21 @@ window.addEventListener('load', () => {
     
     if (isPWA && 'Notification' in window) {
         if (Notification.permission === 'granted') {
-            notificationStatus.textContent = 'התראות מופעלות. 🎉';
-            enableNotificationsButton.classList.add('hidden');
+            if (notificationStatus) {
+                notificationStatus.textContent = translations[settings.language]['notifications.enabled'];
+                enableNotificationsButton.classList.add('hidden');
+            }
         } else {
-            notificationStatus.textContent = 'ניתן לאפשר התראות לאפליקציה!';
-            enableNotificationsButton.classList.remove('hidden');
+            if (notificationStatus) {
+                notificationStatus.textContent = translations[settings.language]['notifications.can_enable'];
+                enableNotificationsButton.classList.remove('hidden');
+            }
         }
     } else {
-        notificationStatus.textContent = 'התראות זמינות רק כאשר האתר מותקן כאפליקציה.';
-        enableNotificationsButton.classList.add('hidden');
+        if (notificationStatus) {
+            notificationStatus.textContent = translations[settings.language]['notifications.pwa_only'];
+            enableNotificationsButton.classList.add('hidden');
+        }
     }
 });
 
