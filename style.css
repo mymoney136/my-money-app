@@ -1,110 +1,62 @@
-/* --- עיצוב בסיסי: רקע חללי, פונטים --- */
+/* --- משתנים גלובליים --- */
 :root {
     --primary-color: #7289DA; /* כחול בהיר */
     --secondary-color: #4CAF50; /* ירוק */
-    --background-color: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
+    --danger-color: #F44336; /* אדום */
     --text-color: #ffffff;
-    --card-background: rgba(255, 255, 255, 0.1);
-    --border-color: rgba(255, 255, 255, 0.2);
-    --blur-effect: 10px;
+    --background-color: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
+    --card-background: rgba(255, 255, 255, 0.15);
+    --card-background-hover: rgba(255, 255, 255, 0.25);
+    --border-color: rgba(255, 255, 255, 0.3);
+    --blur-effect: 15px;
+    --border-radius: 20px;
+    --box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --transition: all 0.3s ease-in-out;
+    --font-family: 'Heebo', Arial, sans-serif;
 }
 
 body.dark-theme {
     --primary-color: #994dff;
     --secondary-color: #6a1b9a;
+    --danger-color: #dc3545;
     --background-color: linear-gradient(135deg, #1f0133 0%, #4a0072 100%);
-    --text-color: #ffffff;
     --card-background: rgba(0, 0, 0, 0.3);
+    --card-background-hover: rgba(0, 0, 0, 0.4);
     --border-color: rgba(255, 255, 255, 0.1);
 }
 
+/* --- כללי --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
-    font-family: 'Heebo', Arial, sans-serif;
+    font-family: var(--font-family);
     direction: rtl;
     background: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    transition: background 0.5s ease-in-out, color 0.3s;
-}
-
-/* --- עיצוב Glassmorphism --- */
-.glass-card {
-    background: var(--card-background);
-    backdrop-filter: blur(var(--blur-effect));
-    -webkit-backdrop-filter: blur(var(--blur-effect));
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    margin-bottom: 20px;
-}
-
-.glass-header {
-    background: var(--card-background);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.glass-nav {
+    transition: var(--transition);
     display: flex;
     justify-content: center;
-    gap: 10px;
-    background: var(--card-background);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    padding: 10px;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 60px; /* מתחת להאדר */
-    z-index: 9;
+    align-items: center;
 }
 
-.glass-input {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 10px;
-    border-radius: 10px;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.glass-input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.glass-input-small {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 5px;
-    border-radius: 10px;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    width: 150px;
-}
-
-/* --- פריסה כללית --- */
+/* --- פריסה ודפים --- */
 .page {
     display: none;
     flex-direction: column;
-    min-height: 100vh;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    max-width: 800px;
 }
 
 .page.active {
@@ -119,8 +71,75 @@ body {
 .main-content {
     flex: 1;
     padding: 20px;
-    max-width: 800px;
-    margin: auto;
+}
+
+/* --- עיצוב Glassmorphism --- */
+.glass-card {
+    background: var(--card-background);
+    backdrop-filter: blur(var(--blur-effect));
+    -webkit-backdrop-filter: blur(var(--blur-effect));
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 20px;
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    background: var(--card-background-hover);
+}
+
+.glass-header, .glass-nav {
+    background: var(--card-background);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    position: sticky;
+    z-index: 10;
+}
+
+.glass-header {
+    padding: 15px;
+    top: 0;
+}
+
+.glass-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    top: 60px; /* מתחת לכותרת */
+    border-top: 1px solid var(--border-color);
+}
+
+.glass-input, .glass-input-small, .currency-selector {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 12px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    width: 100%;
+    margin: 8px 0;
+    transition: var(--transition);
+}
+
+.glass-input-small, .currency-selector {
+    width: auto;
+    padding: 8px;
+    display: inline-block;
+}
+
+.glass-input:focus, .glass-input-small:focus, .currency-selector:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 /* --- כפתורים וטקסט --- */
@@ -128,6 +147,25 @@ body {
     font-size: 2.5em;
     font-weight: bold;
     color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.app-logo {
+    width: 50px;
+    height: 50px;
+}
+
+.welcome-container {
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
 }
 
 .button {
@@ -135,8 +173,9 @@ body {
     padding: 12px 24px;
     font-size: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
+    transition: var(--transition);
+    margin: 5px 0;
+    font-weight: bold;
 }
 
 .button.round {
@@ -155,9 +194,29 @@ body {
     box-shadow: 0 6px 8px rgba(0,0,0,0.3);
 }
 
+.button.secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.button.secondary:hover {
+    transform: translateY(-2px);
+    background-color: #43a047;
+    box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+}
+
 .button.google {
     background-color: #EA4335;
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.button.google img {
+    width: 20px;
 }
 
 .button.google:hover {
@@ -165,7 +224,7 @@ body {
 }
 
 .button.danger {
-    background-color: #dc3545;
+    background-color: var(--danger-color);
     color: white;
 }
 
@@ -174,31 +233,67 @@ body {
 }
 
 .nav-button {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     color: var(--text-color);
-    border: 1px solid var(--border-color);
-    padding: 10px 20px;
-    border-radius: 50px;
+    border: none;
+    padding: 10px 15px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.1em;
+}
+
+.nav-button img {
+    width: 24px;
 }
 
 .nav-button.active {
-    background-color: var(--primary-color);
+    background-color: var(--card-background-hover);
+    border-radius: 12px;
 }
 
-.welcome-container {
-    max-width: 450px;
-    width: 90%;
+.nav-button:hover:not(.active) {
+    transform: translateY(-2px);
+}
+
+.auth-divider {
+    position: relative;
+    margin: 20px 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.auth-divider::before {
+    left: 0;
+}
+
+.auth-divider::after {
+    right: 0;
 }
 
 .auth-form-section {
     margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
 }
 
-.auth-options p {
-    margin: 15px 0;
+.toggle-auth-text {
+    margin-top: 15px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.toggle-auth-text span {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: bold;
 }
 
 .balance-amount {
@@ -206,6 +301,138 @@ body {
     font-weight: bold;
     color: var(--primary-color);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.currency-selector-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.currency-selector {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+}
+
+.currency-selector option {
+    background-color: #2a2a72;
+    color: white;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.message.error {
+    background-color: #F44336;
+    color: white;
+}
+
+.message.info {
+    background-color: #2196F3;
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+
+/* --- טבלאות --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: var(--card-background);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-weight: bold;
+}
+
+.income {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.expense {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* --- מודלים וגרפים --- */
+.modal {
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    max-width: 500px;
+    width: 90%;
+    color: var(--text-color);
+    position: relative;
+}
+
+.close-button {
+    color: #fff;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.settings-section {
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.password-field-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.password-field-container input {
+    flex: 1;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+.goals-list-container, .transactions-list-section, .filter-controls, .period-summary {
+    margin-top: 20px;
 }
 
 .goals-list li {
@@ -216,69 +443,8 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.transaction-form-section form {
+.section-header {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-
-th, td {
-    padding: 10px;
-    text-align: right;
-    border-bottom: 1px solid var(--border-color);
-}
-
-th {
-    background-color: rgba(0, 0, 0, 0.3);
-    color: white;
-}
-
-.income {
-    color: #4CAF50;
-}
-
-.expense {
-    color: #F44336;
-}
-
-/* מודל הגדרות */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-}
-
-.modal-content {
-    max-width: 400px;
-    width: 90%;
-    color: var(--text-color);
-}
-
-.close-button {
-    color: #fff;
-    float: left;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.settings-section {
-    margin-top: 20px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 20px;
 }
