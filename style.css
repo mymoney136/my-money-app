@@ -1,19 +1,19 @@
 /* הגדרות כלליות ומאפיינים מותאמים אישית (CSS Variables) */
 :root {
-    --primary-color: #7289DA; /* צבע ראשי של האפליקציה - כחול */
-    --secondary-color: #4CAF50; /* צבע משני - ירוק */
-    --background-color-light: #F0F2F5; /* רקע כללי בהיר */
-    --background-color-dark: #2a2a72; /* רקע כללי כהה */
-    --text-color-light: #333; /* צבע טקסט בהיר */
-    --text-color-dark: #f0f2f5; /* צבע טקסט כהה */
-    --card-background-light: rgba(255, 255, 255, 0.7); /* רקע כרטיס בהיר */
-    --card-background-dark: rgba(29, 29, 53, 0.7); /* רקע כרטיס כהה */
-    --border-color: rgba(255, 255, 255, 0.18); /* צבע גבול */
-    --input-background-light: rgba(255, 255, 255, 0.5); /* רקע קלט בהיר */
-    --input-background-dark: rgba(255, 255, 255, 0.1); /* רקע קלט כהה */
-    --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* הצללה */
-    --backdrop-filter: blur(10px); /* אפקט הטשטוש של הזכוכית */
-    --font-family: 'Heebo', sans-serif; /* פונט ברירת מחדל */
+    --primary-color: #7289DA;
+    --secondary-color: #4CAF50;
+    --background-color-light: #F0F2F5;
+    --background-color-dark: #2a2a72;
+    --text-color-light: #333;
+    --text-color-dark: #f0f2f5;
+    --card-background-light: rgba(255, 255, 255, 0.7);
+    --card-background-dark: rgba(29, 29, 53, 0.7);
+    --border-color: rgba(255, 255, 255, 0.18);
+    --input-background-light: rgba(255, 255, 255, 0.5);
+    --input-background-dark: rgba(255, 255, 255, 0.1);
+    --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    --backdrop-filter: blur(10px);
+    --font-family: 'Heebo', sans-serif;
 }
 
 /* נושא כהה */
@@ -21,70 +21,27 @@
     background: linear-gradient(135deg, #2a2a72, #474787);
     color: var(--text-color-dark);
 }
-
-.dark-theme .glass-card {
-    background: var(--card-background-dark);
-    box-shadow: var(--box-shadow);
-    backdrop-filter: var(--backdrop-filter);
-    border: 1px solid var(--border-color);
-}
-
-.dark-theme .glass-input {
-    background: var(--input-background-dark);
-    color: var(--text-color-dark);
-    border: 1px solid var(--border-color);
-}
-
-.dark-theme .glass-header, .dark-theme .glass-nav {
-    background: rgba(29, 29, 53, 0.8);
-    backdrop-filter: var(--backdrop-filter);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.dark-theme .nav-button.active {
-    background-color: var(--primary-color);
-    color: white;
-}
+.dark-theme .glass-card { background: var(--card-background-dark); }
+.dark-theme .glass-input { background: var(--input-background-dark); color: var(--text-color-dark); }
+.dark-theme .glass-header, .dark-theme .glass-nav { background: rgba(29, 29, 53, 0.8); }
+.dark-theme .nav-button.active { background-color: var(--primary-color); color: white; }
+.dark-theme .logo-desktop { color: white; }
 
 /* נושא בהיר */
 .light-theme {
     background: linear-gradient(135deg, #e0eafc, #cfdef3);
     color: var(--text-color-light);
 }
+.light-theme .glass-card { background: var(--card-background-light); }
+.light-theme .glass-input { background: var(--input-background-light); color: var(--text-color-light); }
+.light-theme .glass-header, .light-theme .glass-nav { background: rgba(255, 255, 255, 0.8); }
+.light-theme .nav-button.active { background-color: var(--primary-color); color: white; }
+.light-theme .logo-desktop { color: black; }
 
-.light-theme .glass-card {
-    background: var(--card-background-light);
-    box-shadow: var(--box-shadow);
-    backdrop-filter: var(--backdrop-filter);
-    border: 1px solid var(--border-color);
-}
-
-.light-theme .glass-input {
-    background: var(--input-background-light);
-    color: var(--text-color-light);
-    border: 1px solid var(--border-color);
-}
-
-.light-theme .glass-header, .light-theme .glass-nav {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: var(--backdrop-filter);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.light-theme .nav-button.active {
-    background-color: var(--primary-color);
-    color: white;
-}
 
 /* גופנים ואיפוס CSS */
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Poppins:wght@300;400;500;700&display=swap');
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: var(--font-family);
     line-height: 1.6;
@@ -97,29 +54,34 @@ body {
 }
 
 /* מבנה כללי של העמוד */
-.page {
+.app-container {
     width: 100%;
     max-width: 450px;
     height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    box-shadow: none; /* ביטול הצללה בקונטיינר הראשי במובייל */
+}
+.page {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease-in-out;
 }
-
 .page.active {
     opacity: 1;
     pointer-events: all;
     z-index: 10;
 }
-
 .main-content {
     flex: 1;
     padding: 20px;
@@ -138,11 +100,12 @@ body {
     position: relative;
     overflow: hidden;
     transition: transform 0.2s ease-in-out;
+    background: var(--card-background-dark); /* ברירת מחדל כהה */
+    box-shadow: var(--box-shadow);
+    backdrop-filter: var(--backdrop-filter);
+    border: 1px solid var(--border-color);
 }
-
-.glass-card:hover {
-    transform: translateY(-5px);
-}
+.glass-card:hover { transform: translateY(-5px); }
 
 /* כותרות וניווט */
 .glass-header, .glass-nav {
@@ -154,349 +117,187 @@ body {
     justify-content: space-between;
     align-items: center;
     text-align: center;
+    background: rgba(29, 29, 53, 0.8);
+    backdrop-filter: var(--backdrop-filter);
+    border-bottom: 1px solid var(--border-color);
 }
-
-.glass-header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-color-dark);
-}
-
+.glass-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-color-dark); }
 .glass-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
 }
-
 .nav-button {
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 0.75rem;
-    cursor: pointer;
-    padding: 10px 5px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    background: none; border: none; color: inherit; font-size: 0.75rem; cursor: pointer;
+    padding: 10px 5px; border-radius: 10px; display: flex; flex-direction: column;
+    align-items: center; gap: 5px; transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
-.nav-button img {
-    width: 24px;
-    height: 24px;
-}
-
-.nav-button:hover {
-    transform: scale(1.05);
-}
+.nav-button img { width: 24px; height: 24px; }
+.nav-button:hover { transform: scale(1.05); }
 
 /* אלמנטים של טופס */
-.glass-input, .glass-input-small {
-    padding: 12px 15px;
-    border-radius: 12px;
-    font-size: 1rem;
-    width: 100%;
-    outline: none;
-}
-
-.glass-input-small {
-    width: auto;
-    padding: 8px 12px;
-}
-
-.glass-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
+.glass-input, .glass-input-small { padding: 12px 15px; border-radius: 12px; font-size: 1rem; width: 100%; outline: none; background: var(--input-background-dark); color: var(--text-color-dark); border: 1px solid var(--border-color); }
+.glass-input-small { width: auto; padding: 8px 12px; }
+.glass-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
 /* כפתורים */
 .button {
-    padding: 12px 20px;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
+    padding: 12px 20px; border: none; cursor: pointer; font-size: 1rem; font-weight: 500;
     transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
-
-.button.round {
-    border-radius: 25px;
-}
-
-.button.primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.button.secondary {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.button.danger {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.button.google {
-    background-color: white;
-    color: #444;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.button.google img {
-    width: 20px;
-}
-
-.button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
+.button.round { border-radius: 25px; }
+.button.primary { background-color: var(--primary-color); color: white; }
+.button.secondary { background-color: var(--secondary-color); color: white; }
+.button.danger { background-color: #e74c3c; color: white; }
+.button.google { background-color: white; color: #444; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.button.google img { width: 20px; }
+.button:hover { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
 
 /* מסגרות ספציפיות */
-.welcome-container {
-    padding: 30px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.header-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.app-logo {
-    width: 50px;
-    height: 50px;
-}
-
-#auth-form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.auth-divider {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
-    position: relative;
-    text-align: center;
-}
-
-.auth-divider::before, .auth-divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 30%;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.auth-divider::before {
-    left: 0;
-}
-
-.auth-divider::after {
-    right: 0;
-}
-
-.toggle-auth-text {
-    font-size: 0.9rem;
-    margin-top: 10px;
-}
-
-.toggle-auth-text span {
-    color: var(--primary-color);
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.hidden {
-    display: none !important;
-}
+.welcome-container { padding: 30px; text-align: center; display: flex; flex-direction: column; gap: 20px; }
+.header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.app-logo { width: 50px; height: 50px; }
+#auth-form-section { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+.auth-divider { font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); position: relative; text-align: center; }
+.auth-divider::before, .auth-divider::after { content: ''; position: absolute; top: 50%; width: 30%; height: 1px; background: rgba(255, 255, 255, 0.3); }
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
+.toggle-auth-text { font-size: 0.9rem; margin-top: 10px; }
+.toggle-auth-text span { color: var(--primary-color); text-decoration: underline; cursor: pointer; }
+.hidden { display: none !important; }
 
 /* הודעות שגיאה והצלחה */
-.message {
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
-    font-weight: 500;
-}
-
-.message.error {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.message.success {
-    background-color: #27ae60;
-    color: white;
-}
-
-.message.info {
-    background-color: #3498db;
-    color: white;
-}
+.message { padding: 10px; border-radius: 10px; text-align: center; font-weight: 500; }
+.message.error { background-color: #e74c3c; color: white; }
+.message.success { background-color: #27ae60; color: white; }
+.message.info { background-color: #3498db; color: white; }
 
 /* עיצובים נוספים לדפים */
-.balance-section h2, .goals-section h2, .notifications-section h2, .transaction-form-section h2, .graphs-container h2 {
-    font-size: 1.2rem;
-    font-weight: 500;
-}
-
-.balance-amount {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--secondary-color);
-}
-
-.currency-selector-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.goals-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.goals-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background: var(--input-background-dark);
-    border-radius: 10px;
-}
-
-.goals-list li strong {
-    flex: 1;
-}
-
-.transactions-table-container {
-    overflow-x: auto;
-    width: 100%;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-th, td {
-    padding: 12px;
-    text-align: right;
-    border-bottom: 1px solid var(--border-color);
-}
-
-th {
-    font-weight: 700;
-}
-
-.income {
-    color: var(--secondary-color);
-}
-
-.expense {
-    color: #e74c3c;
-}
-
-.period-summary {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 15px;
-}
-
-.chart-container {
-    position: relative;
-    height: 300px;
-}
+.balance-section h2, .goals-section h2, .notifications-section h2, .transaction-form-section h2, .graphs-container h2 { font-size: 1.2rem; font-weight: 500; }
+.balance-amount { font-size: 2.5rem; font-weight: 700; color: var(--secondary-color); }
+.currency-selector-container { display: flex; align-items: center; gap: 10px; }
+.goals-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.goals-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--input-background-dark); border-radius: 10px; }
+.goals-list li strong { flex: 1; }
+.transactions-table-container { overflow-x: auto; width: 100%; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border-color); }
+th { font-weight: 700; }
+.income { color: var(--secondary-color); }
+.expense { color: #e74c3c; }
+.period-summary { margin-top: 20px; padding: 15px; border-radius: 15px; }
+.chart-container { position: relative; height: 300px; }
 
 /* מודל הגדרות */
-.modal {
-    position: fixed;
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    padding: 30px;
-    width: 90%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
-}
-
-.close-button {
-    position: absolute;
-    top: 15px;
-    right: 25px;
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    color: var(--text-color-dark);
-}
-
-.settings-section {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-}
-
-.settings-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.settings-section label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-right: 15px;
-    cursor: pointer;
-}
+.modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; }
+.modal-content { padding: 30px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; position: relative; }
+.close-button { position: absolute; top: 15px; right: 25px; font-size: 2rem; font-weight: bold; cursor: pointer; color: var(--text-color-dark); }
+.settings-section { border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+.settings-section h3 { font-size: 1.1rem; margin-bottom: 10px; font-weight: 500; }
+.settings-section label { display: inline-flex; align-items: center; gap: 5px; margin-right: 15px; cursor: pointer; }
 
 /* תמיכה בכיווניות */
-html[dir="rtl"] {
-    text-align: right;
-}
+html[dir="rtl"] { text-align: right; }
+html[dir="rtl"] .main-content { text-align: right; }
+html[dir="rtl"] th, html[dir="rtl"] td { text-align: right; }
+html[dir="rtl"] .auth-divider::before { left: auto; right: 0; }
+html[dir="rtl"] .auth-divider::after { left: 0; right: auto; }
 
-html[dir="rtl"] .main-content {
-    text-align: right;
-}
+/* מחבוא כפתורי הניווט של המחשב בתצוגת מובייל */
+.desktop-only { display: none; }
+.mobile-only { display: flex; }
 
-html[dir="rtl"] th, html[dir="rtl"] td {
-    text-align: right;
-}
-
-html[dir="rtl"] .auth-divider::before {
-    left: auto;
-    right: 0;
-}
-
-html[dir="rtl"] .auth-divider::after {
-    left: 0;
-    right: auto;
+/* --- עיצוב לתצוגה רחבה (מחשב) --- */
+@media (min-width: 768px) {
+    body {
+        min-height: 100vh;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 50px;
+    }
+    .app-container {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        max-width: 1200px;
+        height: calc(100vh - 100px);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        background: var(--card-background-light);
+    }
+    .dark-theme .app-container { background: var(--card-background-dark); }
+    .glass-nav.mobile-only { display: none; }
+    .glass-nav.desktop-only {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 20px 10px;
+        gap: 15px;
+        position: relative;
+        top: 0;
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
+        background: rgba(255, 255, 255, 0.8);
+    }
+    .dark-theme .glass-nav.desktop-only {
+        background: rgba(29, 29, 53, 0.8);
+        border-right: 1px solid var(--border-color);
+    }
+    .logo-desktop {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    .logo-desktop img {
+        width: 30px;
+        height: 30px;
+    }
+    .nav-button {
+        flex-direction: row;
+        justify-content: flex-start;
+        width: 100%;
+        gap: 10px;
+        font-size: 1rem;
+        padding: 12px 15px;
+    }
+    .nav-button img { width: 20px; height: 20px; }
+    .page {
+        position: relative;
+        left: 0;
+        transform: none;
+        height: 100%;
+        overflow-y: auto;
+    }
+    .welcome-page {
+        grid-column: 1 / 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .main-content {
+        padding: 40px;
+    }
+    .glass-header {
+        position: relative;
+        padding-left: 40px;
+        padding-right: 40px;
+        background: none;
+        border-bottom: none;
+    }
+    html[dir="rtl"] .app-container {
+        direction: rtl;
+        grid-template-columns: 1fr 250px;
+    }
+    html[dir="rtl"] .glass-nav.desktop-only {
+        border-right: none;
+        border-left: 1px solid var(--border-color);
+    }
+    html[dir="rtl"] .nav-button {
+        justify-content: flex-end;
+    }
+    html[dir="rtl"] .nav-button span { order: -1; }
 }
