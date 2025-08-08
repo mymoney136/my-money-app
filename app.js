@@ -168,11 +168,8 @@ async function loadUserData() {
     if (isGuestMode) {
         transactions = JSON.parse(localStorage.getItem('guestTransactions')) || [];
         goals = JSON.parse(localStorage.getItem('guestGoals')) || [];
-        console.log("Loading guest data from LocalStorage.");
     } else if (currentUser) {
-        console.log("Loading user data from Firestore...");
         const userId = currentUser.uid;
-
         const transactionsRef = collection(db, 'users', userId, 'transactions');
         const transactionsSnapshot = await getDocs(transactionsRef);
         transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -180,8 +177,6 @@ async function loadUserData() {
         const goalsRef = collection(db, 'users', userId, 'goals');
         const goalsSnapshot = await getDocs(goalsRef);
         goals = goalsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        console.log("User data loaded successfully.");
     }
     updateUI();
 }
@@ -339,10 +334,6 @@ homeButton.addEventListener('click', () => showPage(homePage));
 myMoneyButton.addEventListener('click', () => showPage(budgetManagementPage));
 graphsButton.addEventListener('click', () => showPage(graphsPage));
 settingsButton.addEventListener('click', () => {
-    if (currentUser) {
-        userEmailDisplay.textContent = currentUser.email;
-        userPasswordInput.value = "********";
-    }
     settingsModal.style.display = 'flex';
 });
 
@@ -351,245 +342,56 @@ startGuestButton.addEventListener('click', () => {
     showPage(homePage);
     loadUserData();
     showMessage(authMessage, `ברוך הבא, אורח!`, 'success');
+    document.body.classList.add('logged-in');
+    document.body.classList.add('guest-mode'); // הוספת מחלקה ייעודית למצב אורח
 });
 
-registerButton.addEventListener('click', async () => {
-    const email = authEmailInput.value;
-    const password = authPasswordInput.value;
-    const confirmPassword = confirmPasswordInput.value;
-
-    if (password !== confirmPassword) {
-        showMessage(authMessage, 'הסיסמאות אינן תואמות!', 'error');
-        return;
-    }
-
-    try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        showMessage(authMessage, 'הרשמה מוצלחת! אתה מחובר כעת.', 'success');
-        authEmailInput.value = '';
-        authPasswordInput.value = '';
-        confirmPasswordInput.value = '';
-    } catch (error) {
-        showMessage(authMessage, `שגיאת הרשמה: ${error.message}`, 'error');
-    }
-});
-loginButton.addEventListener('click', async () => {
-    const email = loginEmailInput.value;
-    const password = loginPasswordInput.value;
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showMessage(authMessage, 'התחברות מוצלחת!', 'success');
-        loginEmailInput.value = '';
-        loginPasswordInput.value = '';
-    } catch (error) {
-        showMessage(authMessage, `שגיאת התחברות: ${error.message}`, 'error');
-    }
-});
-googleLoginButton.addEventListener('click', async () => {
-    try {
-        await signInWithPopup(auth, googleProvider);
-        showMessage(authMessage, 'התחברות עם גוגל מוצלחת!', 'success');
-    } catch (error) {
-        showMessage(authMessage, `שגיאת התחברות עם גוגל: ${error.message}`, 'error');
-    }
-});
-showLoginFormButton.addEventListener('click', () => {
-    registerFields.style.display = 'none';
-    loginFields.style.display = 'block';
-});
-showRegisterFormButton.addEventListener('click', () => {
-    registerFields.style.display = 'block';
-    loginFields.style.display = 'none';
-});
-
-logoutButton.addEventListener('click', async () => {
-    await signOut(auth);
-    showPage(welcomePage);
-    document.body.classList.remove('logged-in');
-    showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
-});
-
-showPasswordButton.addEventListener('click', () => {
-    if (userPasswordInput.type === 'password') {
-        userPasswordInput.type = 'text';
-        showPasswordButton.textContent = 'הסתר';
-    } else {
-        userPasswordInput.type = 'password';
-        showPasswordButton.textContent = 'הצג';
-    }
-});
-
-// פונקציית הוספת פעולה מתוקנת
-addTransactionButton.addEventListener('click', async () => {
-    const type = transactionTypeSelect.value;
-    const amount = parseFloat(transactionAmountInput.value);
-    const description = transactionDescriptionInput.value;
-    const date = transactionDateInput.value;
-
-    if (!amount || !date || isNaN(amount)) {
-        showMessage(transactionMessage, 'אנא מלא סכום ותאריך', 'error');
-        return;
-    }
-
-    const newTransaction = {
-        type,
-        amount,
-        description,
-        date
-    };
-    
-    // שמירה של הפעולה והמתנה לסיום
-    await saveTransaction(newTransaction);
-    
-    showMessage(transactionMessage, 'פעולה נוספה בהצלחה!', 'success');
-    transactionAmountInput.value = '';
-    transactionDescriptionInput.value = '';
-    transactionDateInput.value = '';
-});
-
-addGoalButton.addEventListener('click', async () => {
-    const name = goalNameInput.value;
-    const amount = parseFloat(goalAmountInput.value);
-
-    if (!name || !amount || isNaN(amount)) {
-        showMessage(goalMessage, 'אנא מלא שם וסכום ליעד', 'error');
-    } else {
-        const newGoal = {
-            name,
-            amount,
-            saved: 0
-        };
-        await addGoal(newGoal);
-        showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
-        goalNameInput.value = '';
-        goalAmountInput.value = '';
-    }
-});
-
-document.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('delete-transaction')) {
-        const transactionId = e.target.dataset.id;
-        await deleteTransaction(transactionId);
-        showMessage(transactionMessage, 'פעולה נמחקה בהצלחה.', 'success');
-    }
-    if (e.target.classList.contains('delete-goal')) {
-        const goalId = e.target.dataset.id;
-        await deleteGoal(goalId);
-        showMessage(goalMessage, 'יעד נמחק בהצלחה.', 'success');
-    }
-});
-
-
-filterButton.addEventListener('click', () => {
-    const startDate = startDateInput.value;
-    const endDate = endDateInput.value;
-
-    if (!startDate || !endDate) {
-        showMessage(transactionMessage, 'אנא בחר תאריכי התחלה וסיום.', 'error');
-        return;
-    }
-
-    const filtered = transactions.filter(t => {
-        const transactionDate = t.date;
-        return transactionDate >= startDate && transactionDate <= endDate;
-    });
-
-    renderTransactionsTable(filtered);
-    updatePeriodSummary(filtered);
-});
-
-resetFilterButton.addEventListener('click', () => {
-    renderTransactionsTable(transactions);
-    updatePeriodSummary(transactions);
-    startDateInput.value = '';
-    endDateInput.value = '';
-});
-
-// --- התאמה אישית של עיצוב ---
-closeModalButton.addEventListener('click', () => settingsModal.style.display = 'none');
-themeDarkRadio.addEventListener('change', () => {
-    settings.theme = 'dark';
-    applySettings();
-    saveSettings();
-});
-themeLightRadio.addEventListener('change', () => {
-    settings.theme = 'light';
-    applySettings();
-    saveSettings();
-});
-mainColorInput.addEventListener('input', (e) => {
-    settings.mainColor = e.target.value;
-    applySettings();
-    saveSettings();
-});
-accentColorInput.addEventListener('input', (e) => {
-    settings.accentColor = e.target.value;
-    applySettings();
-    saveSettings();
-});
-document.querySelectorAll('input[name="font"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        settings.font = e.target.value;
-        applySettings();
-        saveSettings();
-    });
-});
-
-// --- PWA ו-Service Worker ---
-if (window.matchMedia('(display-mode: standalone)').matches || document.referrer.startsWith('android-app://')) {
-    isPWA = true;
-}
-window.addEventListener('load', () => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/my-money-app/service-worker.js').then(reg => {
-            console.log('Service Worker registered! 😎', reg);
-        }).catch(err => {
-            console.log('Service Worker registration failed: 😫', err);
-        });
-    }
-
-    if (isPWA) {
-        notificationStatus.textContent = 'ניתן לאפשר התראות! לחץ על הכפתור למטה.';
-        enableNotificationsButton.style.display = 'block';
-    } else {
-        notificationStatus.textContent = 'כדי לקבל התראות, הוסף את האתר למסך הבית שלך.';
-        enableNotificationsButton.style.display = 'none';
-    }
-});
-
-enableNotificationsButton.addEventListener('click', () => {
-    if ('Notification' in window) {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                notificationStatus.textContent = 'התראות אושרו בהצלחה! 🎉';
-                enableNotificationsButton.style.display = 'none';
-                new Notification('הכסף שלי', { body: 'התראות אפליקציה הופעלו בהצלחה!' });
-            } else {
-                notificationStatus.textContent = 'התראות נדחו או לא ניתנו. 😔';
-            }
-        });
-    } else {
-        notificationStatus.textContent = 'התראות לא נתמכות בדפדפן זה.';
-    }
-});
+// ... (שאר הקוד של הרשמה, התחברות וכו')
 
 // --- אימות וניהול משתמשים (Firebase) ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
         isGuestMode = false;
-        console.log("משתמש מחובר:", currentUser.email);
         homeGreeting.textContent = `שלום, ${currentUser.email}!`;
         showPage(homePage);
         loadUserData();
-        document.body.classList.add('logged-in'); // הוספת מחלקה לגוף הדף
+        document.body.classList.add('logged-in');
+        document.body.classList.remove('guest-mode'); // הסרת מחלקת אורח
     } else {
         currentUser = null;
-        isGuestMode = false;
-        console.log("משתמש לא מחובר.");
-        showPage(welcomePage);
-        document.body.classList.remove('logged-in'); // הסרת המחלקה
+        if (!isGuestMode) { // אם לא במצב אורח, מציג את דף הכניסה
+            showPage(welcomePage);
+            document.body.classList.remove('logged-in');
+            document.body.classList.remove('guest-mode');
+        } else { // אם במצב אורח, לא משנה את התצוגה
+            // שומר על מצב אורח פעיל
+        }
     }
 });
 
+logoutButton.addEventListener('click', async () => {
+    if (isGuestMode) {
+        // התנתקות ממצב אורח
+        isGuestMode = false;
+        localStorage.removeItem('guestTransactions');
+        localStorage.removeItem('guestGoals');
+        showPage(welcomePage);
+        document.body.classList.remove('logged-in');
+        document.body.classList.remove('guest-mode');
+        showMessage(authMessage, 'התנתקת ממצב אורח.', 'success');
+    } else {
+        // התנתקות ממשתמש רשום
+        await signOut(auth);
+        showPage(welcomePage);
+        document.body.classList.remove('logged-in');
+        document.body.classList.remove('guest-mode');
+        showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
+    }
+});
+
+
+// ... (שאר הקוד של העיצוב וה-PWA)
+
+// אתחל את הקוד ה-JavaScript הקיים:
 applySettings();

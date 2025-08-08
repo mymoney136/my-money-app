@@ -611,3 +611,11 @@ tr.drag-over-bottom, li.drag-over-bottom {
         font-size: 1rem;
     }
 }
+
+/* בקובץ style.css */
+body.guest-mode .settings-profile input[type="password"] {
+    display: none;
+}
+body.guest-mode .settings-profile label:nth-child(4) { /* זהירות עם שימוש ב-nth-child, עדיף להוסיף מחלקה */
+    display: none;
+}
