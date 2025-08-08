@@ -1,0 +1,353 @@
+// app.js
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+// הערה: קובץ languages.js לא סופק. אם הוא נדרש, יש ליצור אותו.
+// import translations from './languages.js';
+
+// הגדרות Firebase שלך - יש לעדכן את המפתחות
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+// אתחול Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+// --- אלמנטים מה-DOM ---
+const pages = document.querySelectorAll('.page');
+const navButtons = document.querySelectorAll('.nav-button');
+const welcomePage = document.getElementById('welcome-page');
+const homePage = document.getElementById('home-page');
+const budgetPage = document.getElementById('budget-management-page');
+const graphsPage = document.getElementById('graphs-page');
+
+// אלמנטים של אימות
+const showRegisterFormButton = document.getElementById('show-register-form-button');
+const showLoginFormButton = document.getElementById('show-login-form-button');
+const loginButton = document.getElementById('login-button');
+const registerButton = document.getElementById('register-button');
+const googleLoginButton = document.getElementById('google-login-button');
+const startGuestButton = document.getElementById('start-guest-button');
+const loginFields = document.getElementById('login-fields');
+const registerFields = document.getElementById('register-fields');
+const authMessage = document.getElementById('auth-message');
+const loginEmailInput = document.getElementById('login-email');
+const loginPasswordInput = document.getElementById('login-password');
+const authEmailInput = document.getElementById('auth-email');
+const authPasswordInput = document.getElementById('auth-password');
+const confirmPasswordInput = document.getElementById('confirm-password');
+
+// אלמנטים של דף הבית
+const homeGreeting = document.getElementById('home-greeting');
+const currentBalanceDisplay = document.getElementById('current-balance');
+const goalsList = document.getElementById('goals-list');
+const addGoalBtn = document.getElementById('add-goal-btn');
+const addGoalForm = document.getElementById('add-goal-form');
+const goalNameInput = document.getElementById('goal-name');
+const goalAmountInput = document.getElementById('goal-amount');
+const saveGoalButton = document.getElementById('save-goal-button');
+
+// אלמנטים של דף ניהול כסף
+const transactionsTableBody = document.getElementById('transactions-table-body');
+const transactionForm = document.getElementById('transaction-form');
+const transactionTypeInput = document.getElementById('transaction-type');
+const transactionCurrencyInput = document.getElementById('transaction-currency');
+const transactionAmountInput = document.getElementById('transaction-amount');
+const transactionDescriptionInput = document.getElementById('transaction-description');
+const transactionDateInput = document.getElementById('transaction-date');
+const toggleTransactionsTable = document.getElementById('toggle-transactions-table');
+const transactionsTableContainer = document.getElementById('transactions-table-container');
+
+// אלמנטים של הגדרות
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsModalButton = document.getElementById('close-modal-button');
+const settingsButtons = document.querySelectorAll('[data-page="settings-page"]');
+const logoutButtonDesktop = document.getElementById('logout-button');
+const logoutButtonMobile = document.getElementById('logout-button-mobile');
+
+// פונקציות עזר
+function showMessage(element, message, type) {
+    element.textContent = message;
+    element.className = 'message ' + type;
+    element.classList.remove('hidden');
+}
+
+function hideMessage(element) {
+    element.classList.add('hidden');
+}
+
+function showPage(pageId) {
+    pages.forEach(page => page.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+}
+
+function updateNavButtons(pageId) {
+    navButtons.forEach(button => {
+        if (button.dataset.page === pageId) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+}
+
+function showMainApp() {
+    showPage('home-page');
+    updateNavButtons('home-page');
+    welcomePage.classList.remove('active');
+}
+
+// עדכון ממשק המשתמש בהתאם למצב אימות
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        welcomePage.classList.remove('active');
+        showMainApp();
+        homeGreeting.textContent = `שלום, ${user.email}`;
+        // טען נתוני משתמש ועדכן ממשק משתמש
+        await loadUserData(user.uid);
+    } else {
+        welcomePage.classList.add('active');
+        showPage('welcome-page');
+    }
+});
+
+// --- לוגיקת אימות ---
+showRegisterFormButton.addEventListener('click', () => {
+    loginFields.classList.add('hidden');
+    registerFields.classList.remove('hidden');
+});
+showLoginFormButton.addEventListener('click', () => {
+    registerFields.classList.add('hidden');
+    loginFields.classList.remove('hidden');
+});
+
+loginButton.addEventListener('click', async () => {
+    const email = loginEmailInput.value;
+    const password = loginPasswordInput.value;
+    if (!email || !password) {
+        showMessage(authMessage, "נא למלא את כל השדות", "error");
+        return;
+    }
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        showMessage(authMessage, "שם משתמש או סיסמה שגויים", "error");
+    }
+});
+
+registerButton.addEventListener('click', async () => {
+    const email = authEmailInput.value;
+    const password = authPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    if (password !== confirmPassword) {
+        showMessage(authMessage, "הסיסמאות אינן תואמות", "error");
+        return;
+    }
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        showMessage(authMessage, "ההרשמה הצליחה! אנא התחבר", "success");
+        registerFields.classList.add('hidden');
+        loginFields.classList.remove('hidden');
+    } catch (error) {
+        showMessage(authMessage, "שגיאה בהרשמה: " + error.message, "error");
+    }
+});
+
+googleLoginButton.addEventListener('click', async () => {
+    try {
+        await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+        showMessage(authMessage, "שגיאה בהתחברות עם גוגל: " + error.message, "error");
+    }
+});
+
+startGuestButton.addEventListener('click', () => {
+    // Guest mode logic - לא משתמש ב-Firebase לצורך שמירה
+    welcomePage.classList.remove('active');
+    showMainApp();
+    homeGreeting.textContent = `שלום אורח`;
+});
+
+[logoutButtonDesktop, logoutButtonMobile].forEach(button => {
+    if (button) {
+        button.addEventListener('click', async () => {
+            await signOut(auth);
+            welcomePage.classList.add('active');
+            showMessageBox("התנתקת בהצלחה", "success");
+        });
+    }
+});
+
+// --- ניווט בין דפים ---
+navButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        const pageId = e.currentTarget.dataset.page;
+        if (pageId === 'settings-page') {
+            settingsModal.classList.remove('hidden');
+            return;
+        }
+        showPage(pageId);
+        updateNavButtons(pageId);
+    });
+});
+
+// פתיחה וסגירה של המודל
+settingsButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        settingsModal.classList.remove('hidden');
+    });
+});
+closeSettingsModalButton.addEventListener('click', () => {
+    settingsModal.classList.add('hidden');
+});
+
+// --- לוגיקת נתונים ---
+async function loadUserData(uid) {
+    const userDocRef = doc(db, "users", uid);
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        currentBalanceDisplay.textContent = `${data.balance || 0} ₪`;
+        renderGoals(data.goals || []);
+        renderTransactions(data.transactions || []);
+    } else {
+        // צור מסמך חדש למשתמש אם לא קיים
+        await setDoc(userDocRef, {
+            balance: 0,
+            goals: [],
+            transactions: []
+        });
+    }
+}
+
+async function updateUserData(uid, data) {
+    const userDocRef = doc(db, "users", uid);
+    await updateDoc(userDocRef, data);
+}
+
+// לוגיקת יעדים
+addGoalBtn.addEventListener('click', () => {
+    addGoalForm.classList.toggle('hidden');
+});
+saveGoalButton.addEventListener('click', async () => {
+    const goalName = goalNameInput.value;
+    const goalAmount = parseFloat(goalAmountInput.value);
+    if (goalName && !isNaN(goalAmount)) {
+        const user = auth.currentUser;
+        if (user) {
+            const userDocRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists()) {
+                const goals = docSnap.data().goals || [];
+                goals.push({ name: goalName, amount: goalAmount, progress: 0 });
+                await updateUserData(user.uid, { goals });
+                showMessageBox("יעד חדש נשמר!", "success");
+            }
+        }
+    } else {
+        showMessageBox("נא למלא את כל השדות בצורה תקינה", "error");
+    }
+});
+
+function renderGoals(goals) {
+    goalsList.innerHTML = '';
+    goals.forEach(goal => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <strong>${goal.name}</strong>
+            <progress value="${goal.progress}" max="${goal.amount}"></progress>
+            <span>${goal.progress} / ${goal.amount} ₪</span>
+        `;
+        goalsList.appendChild(li);
+    });
+}
+
+// לוגיקת פעולות
+toggleTransactionsTable.addEventListener('click', () => {
+    transactionsTableContainer.classList.toggle('hidden');
+});
+transactionForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const type = transactionTypeInput.value;
+    const currency = transactionCurrencyInput.value; // יש למלא את הסלקטור במטבעות
+    const amount = parseFloat(transactionAmountInput.value);
+    const description = transactionDescriptionInput.value;
+    const date = transactionDateInput.value;
+
+    if (!amount || !date) {
+        showMessageBox("נא למלא סכום ותאריך", "error");
+        return;
+    }
+
+    const transaction = { type, currency, amount, description, date, timestamp: new Date() };
+
+    const user = auth.currentUser;
+    if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+            const transactions = docSnap.data().transactions || [];
+            transactions.push(transaction);
+            await updateUserData(user.uid, { transactions });
+            showMessageBox("פעולה נשמרה בהצלחה", "success");
+        }
+    }
+});
+
+function renderTransactions(transactions) {
+    transactionsTableBody.innerHTML = '';
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date)); // ממיין מהחדש לישן
+    transactions.forEach(transaction => {
+        const tr = document.createElement('tr');
+        const typeClass = transaction.type === 'income' ? 'income' : 'expense';
+        tr.innerHTML = `
+            <td>${transaction.date}</td>
+            <td class="${typeClass}">${transaction.amount.toFixed(2)} ${transaction.currency}</td>
+            <td>${transaction.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
+            <td>${transaction.description || ''}</td>
+            <td>
+                <button class="button round small-button danger">מחק</button>
+            </td>
+        `;
+        transactionsTableBody.appendChild(tr);
+    });
+}
+
+// --- לוגיקת שירותים נוספים ---
+function showMessageBox(message, type) {
+    const messageBox = document.getElementById('message-box');
+    messageBox.textContent = message;
+    messageBox.className = 'message-box show ' + type;
+    setTimeout(() => {
+        messageBox.classList.remove('show');
+    }, 5000);
+}
+
+// --- PWA Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            console.log('Service Worker registered with scope: ', registration.scope);
+        }).catch(err => {
+            console.log('Service Worker registration failed: ', err);
+        });
+    });
+}
+
+// --- אתחול ראשוני ---
+document.addEventListener('DOMContentLoaded', () => {
+    // עדכן את כפתור הניווט הראשון כפעיל
+    const firstNavButton = document.querySelector('.nav-button[data-page="home-page"]');
+    if (firstNavButton) {
+        firstNavButton.classList.add('active');
+    }
+});

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="app.title">הכסף שלי</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="theme-color" content="#2a2a72">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="הכסף שלי">
+    <link rel="apple-touch-icon" href="logo192.png">
+</head>
+<body>
+    <div class="app-container">
+
+        <div id="welcome-page" class="page active">
+            <div class="welcome-container glass-card">
+                <div class="header-logo">
+                    <span class="app-emoji">💰</span>
+                    <h1 class="logo" data-i18n="app.title">הכסף שלי</h1>
+                </div>
+                <p data-i18n="welcome.subtitle">ניהול פיננסי חכם וקל</p>
+                <button id="start-guest-button" class="button round primary" data-i18n="welcome.guest_button">התחל כאורח</button>
+                <div id="auth-form-section">
+                    <p class="auth-divider" data-i18n="welcome.or_login">או התחבר/הירשם</p>
+                    <div id="login-fields">
+                        <input type="email" id="login-email" data-i18n="[placeholder]login.email" placeholder="אימייל" class="glass-input">
+                        <input type="password" id="login-password" data-i18n="[placeholder]login.password" placeholder="סיסמה" class="glass-input">
+                        <button id="login-button" class="button round primary" data-i18n="login.login_button">התחבר</button>
+                        <button id="google-login-button" class="button round google"> <span class="emoji">🇬</span> <span data-i18n="login.google_login">התחבר עם Google</span></button>
+                        <p class="toggle-auth-text" data-i18n="login.no_account">אין לך חשבון? <span id="show-register-form-button" data-i18n="login.register_here">הירשם כאן</span></p>
+                    </div>
+                    <div id="register-fields" class="hidden">
+                        <input type="email" id="auth-email" data-i18n="[placeholder]register.email" placeholder="אימייל" class="glass-input">
+                        <input type="password" id="auth-password" data-i18n="[placeholder]register.password" placeholder="סיסמה" class="glass-input">
+                        <input type="password" id="confirm-password" data-i18n="[placeholder]register.confirm_password" placeholder="אישור סיסמה" class="glass-input">
+                        <button id="register-button" class="button round primary" data-i18n="register.register_button">הרשם</button>
+                        <p class="toggle-auth-text" data-i18n="register.has_account">יש לך כבר חשבון? <span id="show-login-form-button" data-i18n="register.login_here">התחבר כאן</span></p>
+                    </div>
+                </div>
+                <p id="auth-message" class="message hidden"></p>
+            </div>
+        </div>
+
+        <nav id="main-nav-desktop" class="glass-nav desktop-only">
+            <h1 class="logo-desktop"><span class="emoji">💰</span> הכסף שלי</h1>
+            <button class="nav-button" data-page="home-page"><span class="emoji">🏠</span><span data-i18n="nav.home">בית</span></button>
+            <button class="nav-button" data-page="budget-management-page"><span class="emoji">💸</span><span data-i18n="nav.budget">ניהול כסף</span></button>
+            <button class="nav-button" data-page="graphs-page"><span class="emoji">📊</span><span data-i18n="nav.graphs">גרפים</span></button>
+            <button id="settings-button-desktop" class="nav-button" data-page="settings-page"><span class="emoji">⚙️</span><span data-i18n="nav.settings">הגדרות</span></button>
+        </nav>
+
+        <div id="home-page" class="page">
+            <header class="glass-header">
+                <h1 id="home-greeting"></h1>
+            </header>
+            <nav class="glass-nav mobile-only">
+                <button class="nav-button" data-page="home-page"><span class="emoji">🏠</span><span data-i18n="nav.home">בית</span></button>
+                <button class="nav-button" data-page="budget-management-page"><span class="emoji">💸</span><span data-i18n="nav.budget">ניהול כסף</span></button>
+                <button class="nav-button" data-page="graphs-page"><span class="emoji">📊</span><span data-i18n="nav.graphs">גרפים</span></button>
+                <button id="settings-button-mobile" class="nav-button" data-page="settings-page"><span class="emoji">⚙️</span><span data-i18n="nav.settings">הגדרות</span></button>
+            </nav>
+            <main class="main-content">
+                <section class="balance-section glass-card">
+                    <h2 data-i18n="home.current_balance">יתרה נוכחית</h2>
+                    <div class="currency-selector-container">
+                        <p id="current-balance" class="balance-amount"></p>
+                        <select id="home-currency-selector" class="currency-selector glass-input-small"></select>
+                    </div>
+                </section>
+                <section class="goals-section glass-card">
+                    <div class="section-header">
+                        <h2 data-i18n="home.financial_goals">יעדים פיננסיים</h2>
+                    </div>
+                    <div class="goals-list-container">
+                        <ul id="goals-list" class="goals-list"></ul>
+                    </div>
+                    <button id="add-goal-btn" class="button round secondary" data-i18n="home.add_goal_button">הוסף יעד</button>
+                    <div id="add-goal-form" class="hidden">
+                        <input type="text" id="goal-name" data-i18n="[placeholder]home.goal_name_placeholder" placeholder="שם היעד" class="glass-input">
+                        <input type="number" id="goal-amount" data-i18n="[placeholder]home.goal_amount_placeholder" placeholder="סכום היעד" class="glass-input">
+                        <button id="save-goal-button" class="button round primary" data-i18n="home.save_goal_button">שמור יעד</button>
+                        <p id="goal-message" class="message hidden"></p>
+                    </div>
+                </section>
+                <section class="notifications-section glass-card">
+                    <h2 data-i18n="home.notifications_title">התראות</h2>
+                    <p id="notification-status"></p>
+                    <button id="enable-notifications-button" class="button round primary" data-i18n="home.enable_notifications_button">אפשר התראות</button>
+                </section>
+            </main>
+        </div>
+
+        <div id="budget-management-page" class="page">
+            <header class="glass-header">
+                <h1 data-i18n="budget.title">ניהול כסף</h1>
+            </header>
+            <nav class="glass-nav mobile-only">
+                <button class="nav-button" data-page="home-page"><span class="emoji">🏠</span><span data-i18n="nav.home">בית</span></button>
+                <button class="nav-button" data-page="budget-management-page"><span class="emoji">💸</span><span data-i18n="nav.budget">ניהול כסף</span></button>
+                <button class="nav-button" data-page="graphs-page"><span class="emoji">📊</span><span data-i18n="nav.graphs">גרפים</span></button>
+                <button id="settings-button-mobile-2" class="nav-button" data-page="settings-page"><span class="emoji">⚙️</span><span data-i18n="nav.settings">הגדרות</span></button>
+            </nav>
+            <main class="main-content">
+                <section class="balance-section glass-card">
+                    <h2 data-i18n="budget.current_balance">יתרה נוכחית</h2>
+                    <div class="currency-selector-container">
+                        <p id="current-balance-money-page" class="balance-amount"></p>
+                        <select id="money-page-currency-selector" class="currency-selector glass-input-small"></select>
+                    </div>
+                </section>
+                <section class="transaction-form-section glass-card">
+                    <h2 data-i18n="budget.add_transaction_title">הוספת פעולה</h2>
+                    <form id="transaction-form">
+                        <label for="transaction-type" data-i18n="budget.transaction_type_label">סוג פעולה:</label>
+                        <select id="transaction-type" class="glass-input">
+                            <option value="income" data-i18n="budget.transaction_type_income">הכנסה</option>
+                            <option value="expense" data-i18n="budget.transaction_type_expense">הוצאה</option>
+                        </select>
+                        <label for="transaction-currency" data-i18n="budget.currency_label">מטבע:</label>
+                        <select id="transaction-currency" class="glass-input"></select>
+                        <label for="transaction-amount" data-i18n="budget.amount_label">סכום:</label>
+                        <input type="number" id="transaction-amount" data-i18n="[placeholder]budget.amount_placeholder" placeholder="סכום" required class="glass-input">
+                        <label for="transaction-description" data-i18n="budget.description_label">תיאור (אופציונלי):</label>
+                        <input type="text" id="transaction-description" data-i18n="[placeholder]budget.description_placeholder" placeholder="תיאור הפעולה" class="glass-input">
+                        <label for="transaction-date" data-i18n="budget.date_label">תאריך:</label>
+                        <input type="date" id="transaction-date" required class="glass-input">
+                        <button type="submit" class="button round primary" data-i18n="budget.add_transaction_button">הוסף פעולה</button>
+                    </form>
+                    <p id="transaction-message" class="message hidden"></p>
+                </section>
+                <section class="transactions-list-section glass-card">
+                    <div class="section-header">
+                        <h2 data-i18n="budget.history_title">היסטוריית פעולות</h2>
+                        <button id="toggle-transactions-table" class="button round secondary" data-i18n="budget.toggle_table_button">הצג/הסתר טבלה</button>
+                    </div>
+                    <div id="transactions-table-container" class="transactions-table-container hidden">
+                        <div class="filter-controls">
+                            <label for="start-date" data-i18n="budget.filter_from">מתאריך:</label>
+                            <input type="date" id="start-date" class="glass-input-small">
+                            <label for="end-date" data-i18n="budget.filter_to">עד תאריך:</label>
+                            <input type="date" id="end-date" class="glass-input-small">
+                            <button id="filter-button" class="button round secondary" data-i18n="budget.filter_button">סנן</button>
+                            <button id="reset-filter-button" class="button round secondary" data-i18n="budget.reset_filter_button">אפס סינון</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th data-i18n="budget.table_date">תאריך</th>
+                                    <th data-i18n="budget.table_amount">סכום (מטבע מקור)</th>
+                                    <th data-i18n="budget.table_type">סוג</th>
+                                    <th data-i18n="budget.table_description">תיאור</th>
+                                    <th data-i18n="budget.table_actions">פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table-body"></tbody>
+                        </table>
+                        <div class="period-summary glass-card-small">
+                            <h3 data-i18n="budget.summary_title">סיכום תקופה</h3>
+                            <p><span data-i18n="budget.summary_income">הכנסות:</span> <span id="period-income">0.00 ₪</span></p>
+                            <p><span data-i18n="budget.summary_expense">הוצאות:</span> <span id="period-expense">0.00 ₪</span></p>
+                            <p><span data-i18n="budget.summary_balance">מאזן:</span> <span id="period-balance">0.00 ₪</span></p>
+                            <p id="period-summary-report" class="message"></p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div id="graphs-page" class="page">
+            <header class="glass-header">
+                <h1 data-i18n="graphs.title">גרפים</h1>
+            </header>
+            <nav class="glass-nav mobile-only">
+                <button class="nav-button" data-page="home-page"><span class="emoji">🏠</span><span data-i18n="nav.home">בית</span></button>
+                <button class="nav-button" data-page="budget-management-page"><span class="emoji">💸</span><span data-i18n="nav.budget">ניהול כסף</span></button>
+                <button class="nav-button" data-page="graphs-page"><span class="emoji">📊</span><span data-i18n="nav.graphs">גרפים</span></button>
+                <button id="settings-button-mobile-3" class="nav-button" data-page="settings-page"><span class="emoji">⚙️</span><span data-i18n="nav.settings">הגדרות</span></button>
+            </nav>
+            <main class="main-content">
+                <section class="graphs-container glass-card">
+                    <h2 data-i18n="graphs.expenses_by_category">הוצאות לפי קטגוריות</h2>
+                    <div class="chart-container">
+                        <canvas id="expenses-pie-chart"></canvas>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content glass-card">
+                <span id="close-modal-button" class="close-button">&times;</span>
+                <h2 data-i18n="settings.title">הגדרות</h2>
+                <div class="settings-section">
+                    <h3 data-i18n="settings.profile_title">פרופיל</h3>
+                    <p><span data-i18n="settings.email_label">אימייל:</span> <span id="user-email-display"></span></p>
+                    <div class="password-field-container">
+                        <label data-i18n="settings.password_label">סיסמה:</label>
+                        <input type="password" id="user-password-input" value="********" class="glass-input" disabled>
+                        <button id="toggle-password-button" class="button round small-button" data-i18n="settings.show_password">הצג</button>
+                    </div>
+                    <button id="logout-button" class="button round danger" data-i18n="settings.logout_button">התנתק</button>
+                </div>
+                <div class="settings-section">
+                    <h3 data-i18n="settings.theme_title">ערכת נושא ועיצוב</h3>
+                    <label>
+                        <input type="radio" name="theme" id="theme-light-radio" value="light"> <span data-i18n="settings.theme_light">נושא בהיר</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="theme" id="theme-dark-radio" value="dark"> <span data-i18n="settings.theme_dark">נושא כהה</span>
+                    </label>
+                    <br>
+                    <label>
+                        <span data-i18n="settings.main_color_label">צבע ראשי:</span>
+                        <input type="color" id="main-color-input">
+                    </label>
+                    <label>
+                        <span data-i18n="settings.accent_color_label">צבע משני:</span>
+                        <input type="color" id="accent-color-input">
+                    </label>
+                    <br>
+                    <label>
+                        <span data-i18n="settings.font_label">פונט:</span>
+                        <select id="font-selector" class="glass-input-small">
+                            <option value="Heebo">Heebo</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Arial">Arial</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3 data-i18n="settings.currency_title">הגדרות מטבע</h3>
+                    <label>
+                        <span data-i18n="settings.base_currency_label">מטבע בסיס:</span>
+                        <select id="base-currency-selector" class="glass-input-small"></select>
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <h3 data-i18n="settings.language_title">שפה</h3>
+                    <label>
+                        <span data-i18n="settings.language_label">בחר שפה:</span>
+                        <select id="language-selector" class="glass-input-small">
+                            <option value="he">עברית</option>
+                            <option value="en">English</option>
+                        </select>
+                    </label>
+                </div>
+                <button id="logout-button-mobile" class="button round danger mobile-only" data-i18n="settings.logout_button">התנתק</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-box" class="message-box"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
