@@ -1,647 +1,284 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth,
-         createUserWithEmailAndPassword,
-         signInWithEmailAndPassword,
-         signOut,
-         onAuthStateChanged,
-         GoogleAuthProvider,
-         signInWithPopup } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore,
-         collection,
-         addDoc,
-         getDocs,
-         query,
-         where,
-         deleteDoc,
-         doc,
-         updateDoc,
-         setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-// הגדרות Firebase שלך
-const firebaseConfig = {
-    apiKey: "AIzaSyCAkTramEw9xQsKDJafmKPTRaoQMyxl_88",
-    authDomain: "my-money-site-177b1.firebaseapp.com",
-    projectId: "my-money-site-177b1",
-    storageBucket: "my-money-site-177b1.firebasestorage.app",
-    messagingSenderId: "1001673216101",
-    appId: "1:1001673216101:web:dd0fc887f73d733889b68c"
-};
-
-// אתחול Firebase
-const app = initializeApp(firebaseConfig);
-
-// קבלת הפניות לשירותים
-const auth = getAuth(app);
-const db = getFirestore(app);
-const googleProvider = new GoogleAuthProvider();
-
-// --- אלמנטים מה-DOM ---
-const welcomePage = document.getElementById('welcome-page');
-const homePage = document.getElementById('home-page');
-const budgetManagementPage = document.getElementById('budget-management-page');
-const graphsPage = document.getElementById('graphs-page');
-
-const homeButton = document.getElementById('home-button');
-const myMoneyButton = document.getElementById('my-money-button');
-const graphsButton = document.getElementById('graphs-button');
-const settingsButton = document.getElementById('settings-button');
-
-const startGuestButton = document.getElementById('start-guest-button');
-const authFormSection = document.getElementById('auth-form-section');
-
-const authEmailInput = document.getElementById('auth-email');
-const authPasswordInput = document.getElementById('auth-password');
-const confirmPasswordInput = document.getElementById('confirm-password');
-const registerButton = document.getElementById('register-button');
-
-const loginEmailInput = document.getElementById('login-email');
-const loginPasswordInput = document.getElementById('login-password');
-const loginButton = document.getElementById('login-button');
-const showRegisterFormButton = document.getElementById('show-register-form-button');
-const showLoginFormButton = document.getElementById('show-login-form-button');
-const googleLoginButton = document.getElementById('google-login-button');
-const authMessage = document.getElementById('auth-message');
-const registerFields = document.getElementById('register-fields');
-const loginFields = document.getElementById('login-fields');
-
-const homeGreeting = document.getElementById('home-greeting');
-const currentBalanceDisplayHome = document.getElementById('current-balance');
-const enableNotificationsButton = document.getElementById('enable-notifications-button');
-const notificationStatus = document.getElementById('notification-status');
-
-const currentBalanceDisplayMyMoney = document.getElementById('current-balance-money-page');
-const transactionTypeSelect = document.getElementById('transaction-type');
-const transactionAmountInput = document.getElementById('transaction-amount');
-const transactionDescriptionInput = document.getElementById('transaction-description');
-const transactionDateInput = document.getElementById('transaction-date');
-const addTransactionButton = document.getElementById('add-transaction-button');
-const transactionMessage = document.getElementById('transaction-message');
-const transactionsTableBody = document.getElementById('transactions-table-body');
-
-const goalNameInput = document.getElementById('goal-name');
-const goalAmountInput = document.getElementById('goal-amount');
-const addGoalButton = document.getElementById('add-goal-button');
-const goalMessage = document.getElementById('goal-message');
-const goalsList = document.getElementById('goals-list');
-
-const startDateInput = document.getElementById('start-date');
-const endDateInput = document.getElementById('end-date');
-const filterButton = document.getElementById('filter-button');
-const resetFilterButton = document.getElementById('reset-filter-button');
-const periodIncomeSpan = document.getElementById('period-income');
-const periodExpenseSpan = document.getElementById('period-expense');
-const periodBalanceSpan = document.getElementById('period-balance');
-const periodSummaryReport = document.getElementById('period-summary-report');
-
-const settingsModal = document.getElementById('settings-modal');
-const closeModalButton = document.getElementById('close-modal-button');
-const userEmailDisplay = document.getElementById('user-email-display');
-const userPasswordInput = document.getElementById('user-password-input');
-const showPasswordButton = document.getElementById('show-password-button');
-const logoutButton = document.getElementById('logout-button');
-const themeDarkRadio = document.getElementById('theme-dark-radio');
-const themeLightRadio = document.getElementById('theme-light-radio');
-const mainColorInput = document.getElementById('main-color-input');
-const accentColorInput = document.getElementById('accent-color-input');
-const fontHeeboRadio = document.getElementById('font-Heebo-radio');
-const fontPoppinsRadio = document.getElementById('font-Poppins-radio');
-const fontArialRadio = document.getElementById('font-Arial-radio');
-
-
-// --- נתונים גלובליים ---
-let transactions = [];
-let goals = [];
-let settings = JSON.parse(localStorage.getItem('settings')) || {
-    theme: 'light',
-    mainColor: '#007bff',
-    accentColor: '#6c757d',
-    font: 'Heebo'
-};
-let currentUser = null;
-let isGuestMode = false;
-let isPWA = false;
-
-// --- פונקציות עזר כלליות ---
-function showPage(pageToShow) {
-    const pages = [welcomePage, homePage, budgetManagementPage, graphsPage];
-    pages.forEach(page => page.classList.remove('active'));
-    pageToShow.classList.add('active');
+/* --- עיצוב בסיסי: רקע חללי, פונטים --- */
+:root {
+    --primary-color: #7289DA; /* כחול בהיר */
+    --secondary-color: #4CAF50; /* ירוק */
+    --background-color: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
+    --text-color: #ffffff;
+    --card-background: rgba(255, 255, 255, 0.1);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --blur-effect: 10px;
 }
 
-function showMessage(element, text, type) {
-    element.textContent = text;
-    element.className = `message ${type}`;
-    element.style.display = 'block';
-    setTimeout(() => {
-        element.style.display = 'none';
-    }, 5000);
+body.dark-theme {
+    --primary-color: #994dff;
+    --secondary-color: #6a1b9a;
+    --background-color: linear-gradient(135deg, #1f0133 0%, #4a0072 100%);
+    --text-color: #ffffff;
+    --card-background: rgba(0, 0, 0, 0.3);
+    --border-color: rgba(255, 255, 255, 0.1);
 }
 
-function applySettings() {
-    const root = document.documentElement;
-    root.style.setProperty('--main-color', settings.mainColor);
-    root.style.setProperty('--accent-color', settings.accentColor);
-    root.style.setProperty('font-family', settings.font);
-
-    if (settings.theme === 'dark') {
-        document.body.classList.remove('light-theme');
-        document.body.classList.add('dark-theme');
-        themeDarkRadio.checked = true;
-    } else {
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-        themeLightRadio.checked = true;
-    }
-
-    mainColorInput.value = settings.mainColor;
-    accentColorInput.value = settings.accentColor;
-
-    document.querySelector(`input[name="font"][value="${settings.font}"]`).checked = true;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-function saveSettings() {
-    localStorage.setItem('settings', JSON.stringify(settings));
+body {
+    font-family: 'Heebo', Arial, sans-serif;
+    direction: rtl;
+    background: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background 0.5s ease-in-out, color 0.3s;
 }
 
-// --- ניהול נתונים (Firebase / Local Storage) ---
-async function loadUserData() {
-    if (isGuestMode) {
-        transactions = JSON.parse(localStorage.getItem('guestTransactions')) || [];
-        goals = JSON.parse(localStorage.getItem('guestGoals')) || [];
-    } else if (currentUser) {
-        const userId = currentUser.uid;
-        const transactionsRef = collection(db, 'users', userId, 'transactions');
-        const transactionsSnapshot = await getDocs(transactionsRef);
-        transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        const goalsRef = collection(db, 'users', userId, 'goals');
-        const goalsSnapshot = await getDocs(goalsRef);
-        goals = goalsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-    updateUI();
+/* --- עיצוב Glassmorphism --- */
+.glass-card {
+    background: var(--card-background);
+    backdrop-filter: blur(var(--blur-effect));
+    -webkit-backdrop-filter: blur(var(--blur-effect));
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    margin-bottom: 20px;
 }
 
-async function saveTransaction(transaction) {
-    if (isGuestMode) {
-        transaction.id = Date.now().toString();
-        transactions.push(transaction);
-        localStorage.setItem('guestTransactions', JSON.stringify(transactions));
-    } else if (currentUser) {
-        const userId = currentUser.uid;
-        try {
-            const docRef = await addDoc(collection(db, 'users', userId, 'transactions'), transaction);
-            transaction.id = docRef.id;
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    }
-    updateUI();
+.glass-header {
+    background: var(--card-background);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-async function deleteTransaction(transactionId) {
-    if (isGuestMode) {
-        transactions = transactions.filter(t => t.id !== transactionId);
-        localStorage.setItem('guestTransactions', JSON.stringify(transactions));
-    } else if (currentUser) {
-        try {
-            await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', transactionId));
-        } catch (e) {
-            console.error("Error deleting transaction: ", e);
-        }
-    }
-    updateUI();
+.glass-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background: var(--card-background);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 60px; /* מתחת להאדר */
+    z-index: 9;
 }
 
-async function addGoal(goal) {
-    if (isGuestMode) {
-        goal.id = Date.now().toString();
-        goals.push(goal);
-        localStorage.setItem('guestGoals', JSON.stringify(goals));
-    } else if (currentUser) {
-        const userId = currentUser.uid;
-        try {
-            const docRef = await addDoc(collection(db, 'users', userId, 'goals'), goal);
-            goal.id = docRef.id;
-        } catch (e) {
-            console.error("Error adding goal: ", e);
-        }
-    }
-    updateUI();
+.glass-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-async function deleteGoal(goalId) {
-    if (isGuestMode) {
-        goals = goals.filter(g => g.id !== goalId);
-        localStorage.setItem('guestGoals', JSON.stringify(goals));
-    } else if (currentUser) {
-        try {
-            await deleteDoc(doc(db, 'users', currentUser.uid, 'goals', goalId));
-        } catch (e) {
-            console.error("Error deleting goal: ", e);
-        }
-    }
-    updateUI();
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
 }
 
-// --- ניהול ממשק משתמש (UI) ---
-function updateUI() {
-    renderTransactionsTable(transactions);
-    renderGoalsList(goals);
-    updateBalances();
-    updatePeriodSummary();
+.glass-input-small {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 5px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    width: 150px;
 }
 
-function renderTransactionsTable(transactionsToRender) {
-    transactionsTableBody.innerHTML = '';
-    transactionsToRender.forEach(t => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${t.date}</td>
-            <td class="${t.type}">${parseFloat(t.amount).toFixed(2)} ₪</td>
-            <td>${t.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
-            <td>${t.description || ''}</td>
-            <td>
-                <button class="button danger small-button delete-transaction" data-id="${t.id}">מחק</button>
-            </td>
-        `;
-        transactionsTableBody.appendChild(row);
-    });
+/* --- פריסה כללית --- */
+.page {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-function renderGoalsList(goalsToRender) {
-    goalsList.innerHTML = '';
-    goalsToRender.forEach(g => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <div>
-                <strong>${g.name}</strong> - יעד: ${g.amount.toFixed(2)} ₪, נחסך: ${g.saved.toFixed(2)} ₪
-            </div>
-            <div class="goal-actions">
-                <button class="button danger small-button delete-goal" data-id="${g.id}">מחק</button>
-            </div>
-        `;
-        goalsList.appendChild(li);
-    });
+.page.active {
+    display: flex;
 }
 
-function updateBalances() {
-    let totalIncome = 0;
-    let totalExpense = 0;
-    transactions.forEach(t => {
-        if (t.type === 'income') {
-            totalIncome += parseFloat(t.amount);
-        } else {
-            totalExpense += parseFloat(t.amount);
-        }
-    });
-    const balance = totalIncome - totalExpense;
-
-    currentBalanceDisplayHome.textContent = `${balance.toFixed(2)} ₪`;
-    currentBalanceDisplayMyMoney.textContent = `${balance.toFixed(2)} ₪`;
+.welcome-page {
+    justify-content: center;
+    align-items: center;
 }
 
-function updatePeriodSummary(filteredTransactions = transactions) {
-    let periodIncome = 0;
-    let periodExpense = 0;
-    filteredTransactions.forEach(t => {
-        if (t.type === 'income') {
-            periodIncome += parseFloat(t.amount);
-        } else {
-            periodExpense += parseFloat(t.amount);
-        }
-    });
-
-    const periodBalance = periodIncome - periodExpense;
-
-    periodIncomeSpan.textContent = `${periodIncome.toFixed(2)} ₪`;
-    periodExpenseSpan.textContent = `${periodExpense.toFixed(2)} ₪`;
-    periodBalanceSpan.textContent = `${periodBalance.toFixed(2)} ₪`;
-
-    if (periodBalance > 0) {
-        periodSummaryReport.className = 'period-summary-report good-budget';
-        periodSummaryReport.textContent = 'כל הכבוד! נשאר לך עודף בתקופה זו.';
-    } else if (periodBalance === 0) {
-        periodSummaryReport.className = 'period-summary-report warning-budget';
-        periodSummaryReport.textContent = 'סיימת את התקופה באיזון.';
-    } else {
-        periodSummaryReport.className = 'period-summary-report bad-budget';
-        periodSummaryReport.textContent = 'שים לב, נכנסת למינוס בתקופה זו.';
-    }
+.main-content {
+    flex: 1;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
 }
 
-// --- אירועי לחיצות (Event Listeners) ---
-homeButton.addEventListener('click', () => showPage(homePage));
-myMoneyButton.addEventListener('click', () => showPage(budgetManagementPage));
-graphsButton.addEventListener('click', () => showPage(graphsPage));
-settingsButton.addEventListener('click', () => {
-    // הסתר/הצג שדות בהתאם למצב המשתמש
-    if (isGuestMode) {
-        userEmailDisplay.textContent = "אורח";
-        if (userPasswordInput.parentElement) {
-            userPasswordInput.parentElement.style.display = 'none'; // הסתר שדה סיסמה
-        }
-        showPasswordButton.style.display = 'none'; // הסתר כפתור הצג/הסתר סיסמה
-    } else if (currentUser) {
-        userEmailDisplay.textContent = currentUser.email;
-        if (userPasswordInput.parentElement) {
-            userPasswordInput.parentElement.style.display = 'block'; // הצג שדה סיסמה
-        }
-        userPasswordInput.value = "********";
-        showPasswordButton.style.display = 'inline-block'; // הצג כפתור
-    }
-    settingsModal.style.display = 'flex';
-});
-
-startGuestButton.addEventListener('click', () => {
-    isGuestMode = true;
-    showPage(homePage); // מעביר לדף הבית במקום דף ההתחברות
-    loadUserData();
-    showMessage(authMessage, `ברוך הבא, אורח!`, 'success');
-    document.body.classList.add('logged-in');
-    document.body.classList.add('guest-mode');
-});
-
-// פונקציה לעדכון מצב תצוגת ההרשמה/התחברות
-function updateAuthUI() {
-    registerFields.style.display = 'none';
-    loginFields.style.display = 'block';
-    if (isGuestMode || currentUser) {
-        // אם מחובר (גם כאורח) הסתר את טפסי ההתחברות/הרשמה
-        authFormSection.style.display = 'none';
-    } else {
-        authFormSection.style.display = 'block';
-    }
+/* --- כפתורים וטקסט --- */
+.logo {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--primary-color);
 }
 
-registerButton.addEventListener('click', async () => {
-    const email = authEmailInput.value;
-    const password = authPasswordInput.value;
-    const confirmPassword = confirmPasswordInput.value;
-
-    if (password !== confirmPassword) {
-        showMessage(authMessage, 'הסיסמאות אינן תואמות!', 'error');
-        return;
-    }
-    
-    // בדיקת תקינות אימייל לפני השליחה
-    if (!validateEmail(email)) {
-        showMessage(authMessage, 'אנא הכנס כתובת אימייל חוקית.', 'error');
-        return;
-    }
-
-    try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        showMessage(authMessage, 'הרשמה מוצלחת! אתה מחובר כעת.', 'success');
-        authEmailInput.value = '';
-        authPasswordInput.value = '';
-        confirmPasswordInput.value = '';
-    } catch (error) {
-        showMessage(authMessage, `שגיאת הרשמה: ${error.message}`, 'error');
-    }
-});
-loginButton.addEventListener('click', async () => {
-    const email = loginEmailInput.value;
-    const password = loginPasswordInput.value;
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showMessage(authMessage, 'התחברות מוצלחת!', 'success');
-        loginEmailInput.value = '';
-        loginPasswordInput.value = '';
-    } catch (error) {
-        showMessage(authMessage, `שגיאת התחברות: ${error.message}`, 'error');
-    }
-});
-googleLoginButton.addEventListener('click', async () => {
-    try {
-        await signInWithPopup(auth, googleProvider);
-        showMessage(authMessage, 'התחברות עם גוגל מוצלחת!', 'success');
-    } catch (error) {
-        showMessage(authMessage, `שגיאת התחברות עם גוגל: ${error.message}`, 'error');
-    }
-});
-showLoginFormButton.addEventListener('click', () => {
-    registerFields.style.display = 'none';
-    loginFields.style.display = 'block';
-});
-showRegisterFormButton.addEventListener('click', () => {
-    registerFields.style.display = 'block';
-    loginFields.style.display = 'none';
-});
-
-logoutButton.addEventListener('click', async () => {
-    if (isGuestMode) {
-        isGuestMode = false;
-        localStorage.removeItem('guestTransactions');
-        localStorage.removeItem('guestGoals');
-        homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
-        showPage(welcomePage);
-        document.body.classList.remove('logged-in');
-        document.body.classList.remove('guest-mode');
-        showMessage(authMessage, 'התנתקת ממצב אורח.', 'success');
-    } else {
-        await signOut(auth);
-        homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
-        showPage(welcomePage);
-        document.body.classList.remove('logged-in');
-        document.body.classList.remove('guest-mode');
-        showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
-    }
-});
-
-
-showPasswordButton.addEventListener('click', () => {
-    if (userPasswordInput.type === 'password') {
-        userPasswordInput.type = 'text';
-        showPasswordButton.textContent = 'הסתר';
-    } else {
-        userPasswordInput.type = 'password';
-        showPasswordButton.textContent = 'הצג';
-    }
-});
-
-addTransactionButton.addEventListener('click', async () => {
-    const type = transactionTypeSelect.value;
-    const amount = parseFloat(transactionAmountInput.value);
-    const description = transactionDescriptionInput.value;
-    const date = transactionDateInput.value;
-
-    if (!amount || !date || isNaN(amount)) {
-        showMessage(transactionMessage, 'אנא מלא סכום ותאריך', 'error');
-        return;
-    }
-
-    const newTransaction = {
-        type,
-        amount,
-        description,
-        date
-    };
-    
-    await saveTransaction(newTransaction);
-    
-    showMessage(transactionMessage, 'פעולה נוספה בהצלחה!', 'success');
-    transactionAmountInput.value = '';
-    transactionDescriptionInput.value = '';
-    transactionDateInput.value = '';
-});
-
-addGoalButton.addEventListener('click', async () => {
-    const name = goalNameInput.value;
-    const amount = parseFloat(goalAmountInput.value);
-
-    if (!name || !amount || isNaN(amount)) {
-        showMessage(goalMessage, 'אנא מלא שם וסכום ליעד', 'error');
-    } else {
-        const newGoal = {
-            name,
-            amount,
-            saved: 0
-        };
-        await addGoal(newGoal);
-        showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
-        goalNameInput.value = '';
-        goalAmountInput.value = '';
-    }
-});
-
-document.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('delete-transaction')) {
-        const transactionId = e.target.dataset.id;
-        await deleteTransaction(transactionId);
-        showMessage(transactionMessage, 'פעולה נמחקה בהצלחה.', 'success');
-    }
-    if (e.target.classList.contains('delete-goal')) {
-        const goalId = e.target.dataset.id;
-        await deleteGoal(goalId);
-        showMessage(goalMessage, 'יעד נמחק בהצלחה.', 'success');
-    }
-});
-
-
-filterButton.addEventListener('click', () => {
-    const startDate = startDateInput.value;
-    const endDate = endDateInput.value;
-
-    if (!startDate || !endDate) {
-        showMessage(transactionMessage, 'אנא בחר תאריכי התחלה וסיום.', 'error');
-        return;
-    }
-
-    const filtered = transactions.filter(t => {
-        const transactionDate = t.date;
-        return transactionDate >= startDate && transactionDate <= endDate;
-    });
-
-    renderTransactionsTable(filtered);
-    updatePeriodSummary(filtered);
-});
-
-resetFilterButton.addEventListener('click', () => {
-    renderTransactionsTable(transactions);
-    updatePeriodSummary(transactions);
-    startDateInput.value = '';
-    endDateInput.value = '';
-});
-
-// --- התאמה אישית של עיצוב ---
-closeModalButton.addEventListener('click', () => settingsModal.style.display = 'none');
-themeDarkRadio.addEventListener('change', () => {
-    settings.theme = 'dark';
-    applySettings();
-    saveSettings();
-});
-themeLightRadio.addEventListener('change', () => {
-    settings.theme = 'light';
-    applySettings();
-    saveSettings();
-});
-mainColorInput.addEventListener('input', (e) => {
-    settings.mainColor = e.target.value;
-    applySettings();
-    saveSettings();
-});
-accentColorInput.addEventListener('input', (e) => {
-    settings.accentColor = e.target.value;
-    applySettings();
-    saveSettings();
-});
-document.querySelectorAll('input[name="font"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        settings.font = e.target.value;
-        applySettings();
-        saveSettings();
-    });
-});
-
-// --- PWA ו-Service Worker ---
-if (window.matchMedia('(display-mode: standalone)').matches || document.referrer.startsWith('android-app://')) {
-    isPWA = true;
-}
-window.addEventListener('load', () => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/my-money-app/service-worker.js').then(reg => {
-            console.log('Service Worker registered! 😎', reg);
-        }).catch(err => {
-            console.log('Service Worker registration failed: 😫', err);
-        });
-    }
-
-    // בדיקת התראות משופרת
-    if (isPWA && ('Notification' in window)) {
-        notificationStatus.textContent = 'ניתן לאפשר התראות! לחץ על הכפתור למטה.';
-        enableNotificationsButton.style.display = 'block';
-    } else {
-        notificationStatus.textContent = 'כדי לקבל התראות, הוסף את האתר למסך הבית שלך.';
-        enableNotificationsButton.style.display = 'none';
-    }
-});
-
-enableNotificationsButton.addEventListener('click', () => {
-    if ('Notification' in window) {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                notificationStatus.textContent = 'התראות אושרו בהצלחה! 🎉';
-                enableNotificationsButton.style.display = 'none';
-                new Notification('הכסף שלי', { body: 'התראות אפליקציה הופעלו בהצלחה!' });
-            } else {
-                notificationStatus.textContent = 'התראות נדחו או לא ניתנו. 😔';
-            }
-        });
-    } else {
-        notificationStatus.textContent = 'התראות לא נתמכות בדפדפן זה.';
-    }
-});
-
-
-// פונקציה לבדיקת תקינות אימייל
-function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
+.button {
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
 }
 
-// --- אימות וניהול משתמשים (Firebase) ---
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUser = user;
-        isGuestMode = false;
-        homeGreeting.textContent = `שלום, ${currentUser.email}!`;
-        showPage(homePage);
-        loadUserData();
-        document.body.classList.add('logged-in');
-        document.body.classList.remove('guest-mode');
-    } else {
-        currentUser = null;
-        if (!isGuestMode) {
-            homeGreeting.textContent = 'שלום!'; // איפוס הודעת הברכה
-            showPage(welcomePage);
-            document.body.classList.remove('logged-in');
-        } else {
-            homeGreeting.textContent = 'שלום, אורח!'; // הודעה למשתמש אורח
-            showPage(homePage); // תיקון: במצב אורח, נשאר בדף הבית
-        }
-    }
-    // קריאה לפונקציה שמעדכנת את התצוגה של טפסי ההתחברות
-    updateAuthUI();
-});
+.button.round {
+    border-radius: 50px;
+}
 
-applySettings();
+.button.primary {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.button.primary:hover {
+    transform: translateY(-2px);
+    background-color: #6272b5;
+    box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+}
+
+.button.google {
+    background-color: #EA4335;
+    color: white;
+}
+
+.button.google:hover {
+    background-color: #d83125;
+}
+
+.button.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.button.danger:hover {
+    background-color: #c82333;
+}
+
+.nav-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    border-radius: 50px;
+}
+
+.nav-button.active {
+    background-color: var(--primary-color);
+}
+
+.welcome-container {
+    max-width: 450px;
+    width: 90%;
+}
+
+.auth-form-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.auth-options p {
+    margin: 15px 0;
+}
+
+.balance-amount {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.goals-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.transaction-form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+.income {
+    color: #4CAF50;
+}
+
+.expense {
+    color: #F44336;
+}
+
+/* מודל הגדרות */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    max-width: 400px;
+    width: 90%;
+    color: var(--text-color);
+}
+
+.close-button {
+    color: #fff;
+    float: left;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.settings-section {
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}

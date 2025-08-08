@@ -1,19 +1,18 @@
-const CACHE_NAME = 'my-money-app-cache-v1';
+const CACHE_NAME = 'my-money-cache-v1';
 const urlsToCache = [
     '/my-money-app/',
     '/my-money-app/index.html',
     '/my-money-app/style.css',
     '/my-money-app/app.js',
     '/my-money-app/manifest.json',
-    '/my-money-app/icons/icon-192x192.png',
-    '/my-money-app/icons/icon-512x512.png'
+    '/my-money-app/logo.png',
+    'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('Opened cache');
                 return cache.addAll(urlsToCache);
             })
     );
@@ -23,10 +22,7 @@ self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
+                return response || fetch(event.request);
             })
     );
 });

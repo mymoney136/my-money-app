@@ -4,263 +4,190 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>הכסף שלי</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700&family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
 </head>
-<body class="light-theme">
-    <header>
-        <div class="header-buttons left">
-            <button id="my-money-button" class="icon-button" title="הכסף שלי">💰</button>
-            <button id="graphs-button" class="icon-button" title="גרפים/טבלאות">📈</button>
+<body>
+
+    <div id="welcome-page" class="page active">
+        <div class="welcome-container glass-card">
+            <h1 class="logo">הכסף שלי</h1>
+            <p>ניהול פיננסי חכם וקל</p>
+            <button id="start-guest-button" class="button round primary">התחל כאורח</button>
+            <div id="auth-form-section">
+                <p>או</p>
+                <div id="login-fields">
+                    <input type="email" id="login-email" placeholder="אימייל" class="glass-input">
+                    <input type="password" id="login-password" placeholder="סיסמה" class="glass-input">
+                    <button id="login-button" class="button round primary">התחבר</button>
+                    <button id="google-login-button" class="button round google">התחבר עם Google</button>
+                    <p>אין לך חשבון? <span id="show-register-form-button">הירשם כאן</span></p>
+                </div>
+                <div id="register-fields" style="display:none;">
+                    <input type="email" id="auth-email" placeholder="אימייל" class="glass-input">
+                    <input type="password" id="auth-password" placeholder="סיסמה" class="glass-input">
+                    <input type="password" id="confirm-password" placeholder="אישור סיסמה" class="glass-input">
+                    <button id="register-button" class="button round primary">הרשם</button>
+                    <p>יש לך כבר חשבון? <span id="show-login-form-button">התחבר כאן</span></p>
+                </div>
+            </div>
+            <p id="auth-message" class="message"></p>
         </div>
-        <h1 id="app-title">הכסף שלי</h1>
-        <div class="header-buttons right">
-            <button id="home-button" class="icon-button" title="דף הבית">🏠</button>
-            <button id="settings-button" class="icon-button" title="הגדרות">⚙️</button>
-        </div>
-    </header>
+    </div>
 
-    <main id="main-content">
-        <section id="welcome-page" class="page active">
-            <div class="card">
-                <h1>ברוכים הבאים ל"הכסף שלי"</h1>
-                <p>נהל את ההכנסות וההוצאות שלך בחכמה, עקוב אחר יעדי חיסכון, וקבל תמונה ברורה של מצבך הפיננסי.</p>
-                <div class="auth-section">
-                    <div id="auth-form-section">
-                        <h2>התחברות / הרשמה</h2>
-                        <div id="register-fields">
-                            <div class="form-group">
-                                <label for="auth-email">אימייל:</label>
-                                <input type="email" id="auth-email" placeholder="הכנס אימייל" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="auth-password">סיסמה:</label>
-                                <input type="password" id="auth-password" placeholder="הכנס סיסמה" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm-password">אמת סיסמה:</label>
-                                <input type="password" id="confirm-password" placeholder="אמת סיסמה" required>
-                            </div>
-                            <div class="auth-buttons">
-                                <button id="register-button" class="button secondary">הרשמה</button>
-                                <button id="show-login-form-button" class="button success">כבר יש לי חשבון</button>
-                            </div>
-                        </div>
-                        <div id="login-fields" style="display: none;">
-                            <div class="form-group">
-                                <label for="login-email">אימייל:</label>
-                                <input type="email" id="login-email" placeholder="הכנס אימייל" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="login-password">סיסמה:</label>
-                                <input type="password" id="login-password" placeholder="הכנס סיסמה" required>
-                            </div>
-                            <div class="auth-buttons">
-                                <button id="login-button" class="button success">התחברות</button>
-                                <button id="show-register-form-button" class="button secondary">הירשם עכשיו</button>
-                            </div>
-                        </div>
-                        <div class="auth-buttons">
-                           <button id="google-login-button" class="button secondary">התחבר עם גוגל</button>
-                        </div>
-                        <div id="auth-message" class="message" style="display: none;"></div>
-                    </div>
-                </div>
-                <button id="start-guest-button" class="button secondary">התחל כאורח</button>
-            </div>
-        </section>
+    <div id="home-page" class="page">
+        <header class="glass-header">
+            <h1 id="home-greeting">שלום!</h1>
+        </header>
+        <nav class="glass-nav">
+            <button id="home-button" class="nav-button round active">בית</button>
+            <button id="my-money-button" class="nav-button round">ניהול כסף</button>
+            <button id="graphs-button" class="nav-button round">גרפים</button>
+            <button id="settings-button" class="nav-button round">הגדרות</button>
+        </nav>
+        <main class="main-content">
+            <section class="balance-section glass-card">
+                <h2>יתרה נוכחית</h2>
+                <p id="current-balance" class="balance-amount">0.00 ₪</p>
+            </section>
+            <section class="goals-section glass-card">
+                <h2>יעדים פיננסיים</h2>
+                <ul id="goals-list" class="goals-list">
+                    </ul>
+            </section>
+            <section class="notifications-section glass-card">
+                <h2>התראות</h2>
+                <p id="notification-status"></p>
+                <button id="enable-notifications-button" class="button round primary">אפשר התראות</button>
+            </section>
+        </main>
+    </div>
 
-        <section id="home-page" class="page">
-            <div class="container">
-                <div class="card home-welcome-card">
-                    <h2>היי!</h2>
-                    <p id="home-greeting"></p>
-                    <div id="notifications-section">
-                        <h3>התראות</h3>
-                        <p id="notification-status">כדי לקבל התראות, הוסף את האתר למסך הבית שלך.</p>
-                        <button id="enable-notifications-button" class="button" style="display:none;">אפשר התראות</button>
-                    </div>
-                    <div class="balance-summary">
-                        <h3>יתרה נוכחית:</h3>
-                        <div id="current-balance" class="balance-display">0.00 ₪</div>
-                    </div>
+    <div id="budget-management-page" class="page">
+        <header class="glass-header">
+            <h1>ניהול כסף</h1>
+        </header>
+        <nav class="glass-nav">
+            <button id="home-button-2" class="nav-button round">בית</button>
+            <button id="my-money-button-2" class="nav-button round active">ניהול כסף</button>
+            <button id="graphs-button-2" class="nav-button round">גרפים</button>
+            <button id="settings-button-2" class="nav-button round">הגדרות</button>
+        </nav>
+        <main class="main-content">
+            <section class="balance-section glass-card">
+                <h2>יתרה נוכחית</h2>
+                <p id="current-balance-money-page" class="balance-amount">0.00 ₪</p>
+            </section>
+            <section class="transaction-form-section glass-card">
+                <h2>הוספת פעולה</h2>
+                <form id="transaction-form">
+                    <label for="transaction-type">סוג פעולה:</label>
+                    <select id="transaction-type" class="glass-input">
+                        <option value="income">הכנסה</option>
+                        <option value="expense">הוצאה</option>
+                    </select>
+                    <label for="transaction-amount">סכום:</label>
+                    <input type="number" id="transaction-amount" placeholder="סכום בשקלים" required class="glass-input">
+                    <label for="transaction-description">תיאור (אופציונלי):</label>
+                    <input type="text" id="transaction-description" placeholder="תיאור הפעולה" class="glass-input">
+                    <label for="transaction-date">תאריך:</label>
+                    <input type="date" id="transaction-date" required class="glass-input">
+                    <button type="button" id="add-transaction-button" class="button round primary">הוסף</button>
+                </form>
+                <p id="transaction-message" class="message"></p>
+            </section>
+            <section class="transactions-list-section glass-card">
+                <h2>היסטוריית פעולות</h2>
+                <div class="filter-controls">
+                    <label for="start-date">מתאריך:</label>
+                    <input type="date" id="start-date" class="glass-input-small">
+                    <label for="end-date">עד תאריך:</label>
+                    <input type="date" id="end-date" class="glass-input-small">
+                    <button id="filter-button" class="button round secondary">סנן</button>
+                    <button id="reset-filter-button" class="button round secondary">אפס סינון</button>
                 </div>
-            </div>
-        </section>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>תאריך</th>
+                            <th>סכום</th>
+                            <th>סוג</th>
+                            <th>תיאור</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-table-body">
+                        </tbody>
+                </table>
+            </section>
+            <section class="period-summary glass-card">
+                <h2>סיכום תקופה</h2>
+                <p>הכנסות: <span id="period-income">0.00 ₪</span></p>
+                <p>הוצאות: <span id="period-expense">0.00 ₪</span></p>
+                <p>מאזן: <span id="period-balance">0.00 ₪</span></p>
+                <p id="period-summary-report"></p>
+            </section>
+        </main>
+    </div>
 
-        <section id="budget-management-page" class="page">
-            <div class="container">
-                <div class="card">
-                    <h2>יתרה נוכחית</h2>
-                    <div id="current-balance-money-page" class="balance-display">0.00 ₪</div>
-                </div>
-                <div class="card">
-                    <h2>הוספת פעולה חדשה</h2>
-                    <div id="transaction-message" class="message" style="display: none;"></div>
-                    <div class="form-group">
-                        <label for="transaction-type">סוג פעולה:</label>
-                        <select id="transaction-type">
-                            <option value="income">הכנסה</option>
-                            <option value="expense">הוצאה</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="transaction-amount">סכום:</label>
-                        <input type="number" id="transaction-amount" placeholder="הכנס סכום" min="0" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label for="transaction-description">תיאור (אופציונלי):</label>
-                        <input type="text" id="transaction-description" placeholder="תיאור הפעולה">
-                    </div>
-                    <div class="form-group">
-                        <label for="transaction-date">תאריך:</label>
-                        <input type="date" id="transaction-date">
-                    </div>
-                    <div class="transaction-buttons">
-                        <button id="add-transaction-button" class="button">הוסף פעולה</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2>היסטוריית פעולות</h2>
-                    <div class="filter-section">
-                        <h3>סינון תקופתי</h3>
-                        <div class="form-group">
-                            <label for="start-date">מתאריך:</label>
-                            <input type="date" id="start-date">
-                        </div>
-                        <div class="form-group">
-                            <label for="end-date">עד תאריך:</label>
-                            <input type="date" id="end-date">
-                        </div>
-                        <div class="filter-buttons">
-                            <button id="filter-button" class="button secondary">סנן</button>
-                            <button id="reset-filter-button" class="button secondary">אפס סינון</button>
-                        </div>
-                    </div>
-                    <div class="period-summary">
-                        <div class="summary-item income">
-                            <h3>הכנסות בתקופה</h3>
-                            <span id="period-income">0.00 ₪</span>
-                        </div>
-                        <div class="summary-item expense">
-                            <h3>הוצאות בתקופה</h3>
-                            <span id="period-expense">0.00 ₪</span>
-                        </div>
-                        <div class="summary-item balance">
-                            <h3>יתרה בתקופה</h3>
-                            <span id="period-balance">0.00 ₪</span>
-                        </div>
-                    </div>
-                    <div id="period-summary-report" class="period-summary-report"></div>
-                    <table class="transactions-table">
-                        <thead>
-                            <tr>
-                                <th>תאריך</th>
-                                <th>סכום</th>
-                                <th>סוג</th>
-                                <th>תיאור</th>
-                                <th>פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactions-table-body"></tbody>
-                    </table>
-                </div>
-                <div class="card">
-                    <h2>יעדי חיסכון</h2>
-                    <div id="goal-message" class="message" style="display: none;"></div>
-                    <div class="form-group">
-                        <label for="goal-name">שם יעד:</label>
-                        <input type="text" id="goal-name" placeholder="לדוגמה: חופשה בחו'ל">
-                    </div>
-                    <div class="form-group">
-                        <label for="goal-amount">סכום יעד:</label>
-                        <input type="number" id="goal-amount" placeholder="הכנס סכום יעד" min="0" step="0.01">
-                    </div>
-                    <div class="goal-buttons">
-                        <button id="add-goal-button" class="button">הוסף יעד</button>
-                    </div>
-                    <ul id="goals-list" class="goals-list"></ul>
-                </div>
-            </div>
-        </section>
-
-        <section id="graphs-page" class="page">
-            <div class="container">
-                <div class="card">
-                    <h2>גרפים ודוחות</h2>
-                    <p>כאן יופיעו גרפים, טבלאות ודוחות חכמים על ההכנסות וההוצאות שלך.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 הכסף שלי. כל הזכויות שמורות.</p>
-    </footer>
-
+    <div id="graphs-page" class="page">
+        <header class="glass-header">
+            <h1>גרפים</h1>
+        </header>
+        <nav class="glass-nav">
+            <button id="home-button-3" class="nav-button round">בית</button>
+            <button id="my-money-button-3" class="nav-button round">ניהול כסף</button>
+            <button id="graphs-button-3" class="nav-button round active">גרפים</button>
+            <button id="settings-button-3" class="nav-button round">הגדרות</button>
+        </nav>
+        <main class="main-content">
+            <section class="graphs-container glass-card">
+                <h2>הוצאות לפי קטגוריות</h2>
+                <canvas id="expenses-pie-chart" width="400" height="400"></canvas>
+            </section>
+        </main>
+    </div>
+    
     <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="close-modal-button">&times;</span>
+        <div class="modal-content glass-card">
+            <span id="close-modal-button" class="close-button">&times;</span>
             <h2>הגדרות</h2>
-
-            <div class="modal-settings-group" id="profile-settings-group">
-                <h3>פרופיל משתמש</h3>
-                <div class="form-group">
-                    <label for="user-email">אימייל:</label>
-                    <p id="user-email-display"></p>
-                </div>
-                <div class="form-group">
-                    <label for="user-password-input">סיסמה:</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="password" id="user-password-input" value="********" readonly>
-                        <button id="show-password-button" class="button small-button secondary">הצג</button>
-                    </div>
-                </div>
-                <button id="logout-button" class="button danger">התנתק</button>
+            <div class="settings-section">
+                <h3>פרופיל</h3>
+                <p>אימייל: <span id="user-email-display"></span></p>
+                <label>
+                    סיסמה:
+                    <input type="password" id="user-password-input" value="********" class="glass-input">
+                    <button id="show-password-button" class="button round small-button">הצג</button>
+                </label>
+                <button id="logout-button" class="button round danger">התנתק</button>
             </div>
-
-            <div class="modal-settings-group">
+            <div class="settings-section">
                 <h3>ערכת נושא</h3>
-                <div class="radio-group">
-                    <label>
-                        <input type="radio" name="theme" value="dark" id="theme-dark-radio"> מצב כהה
-                    </label>
-                    <label>
-                        <input type="radio" name="theme" value="light" id="theme-light-radio" checked> מצב בהיר
-                    </label>
-                </div>
+                <label><input type="radio" name="theme" id="theme-light-radio" value="light"> נושא בהיר</label>
+                <label><input type="radio" name="theme" id="theme-dark-radio" value="dark"> נושא כהה</label>
             </div>
-
-            <div class="modal-settings-group">
+            <div class="settings-section">
                 <h3>צבעים</h3>
-                <div class="color-picker-group">
-                    <label for="main-color-input">צבע ראשי:</label>
+                <label>
+                    צבע ראשי:
                     <input type="color" id="main-color-input">
-                </div>
-                <div class="color-picker-group">
-                    <label for="accent-color-input">צבע הדגשה:</label>
+                </label>
+                <label>
+                    צבע משני:
                     <input type="color" id="accent-color-input">
-                </div>
+                </label>
             </div>
-
-            <div class="modal-settings-group">
+            <div class="settings-section">
                 <h3>פונט</h3>
-                <div class="radio-group">
-                    <label>
-                        <input type="radio" name="font" value="Heebo" id="font-Heebo-radio" checked> Heebo
-                    </label>
-                    <label>
-                        <input type="radio" name="font" value="Poppins" id="font-Poppins-radio"> Poppins
-                    </label>
-                    <label>
-                        <input type="radio" name="font" value="Arial" id="font-Arial-radio"> Arial
-                    </label>
-                </div>
+                <label><input type="radio" name="font" id="font-Heebo-radio" value="Heebo" checked> Heebo</label>
+                <label><input type="radio" name="font" id="font-Poppins-radio" value="Poppins"> Poppins</label>
+                <label><input type="radio" name="font" id="font-Arial-radio" value="Arial"> Arial</label>
             </div>
         </div>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js" type="module"></script>
 </body>
 </html>

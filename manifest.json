@@ -1,20 +1,18 @@
 {
     "name": "הכסף שלי",
     "short_name": "הכסף שלי",
-    "description": "אפליקציה לניהול תקציב אישי",
-    "lang": "he",
-    "start_url": "/my-money-app/index.html",
+    "start_url": "/my-money-app/",
     "display": "standalone",
-    "background_color": "#1a1a2e",
-    "theme_color": "#20c997",
+    "background_color": "#009ffd",
+    "theme_color": "#2a2a72",
     "icons": [
         {
-            "src": "icons/icon-192x192.png",
+            "src": "logo.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icons/icon-512x512.png",
+            "src": "logo.png",
             "sizes": "512x512",
             "type": "image/png"
         }
