@@ -17,7 +17,7 @@ import { getFirestore,
          updateDoc,
          setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// הגדרות Firebase שלך (המידע הספציפי לפרויקט שלך)
+// הגדרות Firebase שלך
 const firebaseConfig = {
     apiKey: "AIzaSyCAkTramEw9xQsKDJafmKPTRaoQMyxl_88",
     authDomain: "my-money-site-177b1.firebaseapp.com",
@@ -93,7 +93,6 @@ const periodExpenseSpan = document.getElementById('period-expense');
 const periodBalanceSpan = document.getElementById('period-balance');
 const periodSummaryReport = document.getElementById('period-summary-report');
 
-// Settings Modal Elements
 const settingsModal = document.getElementById('settings-modal');
 const closeModalButton = document.getElementById('close-modal-button');
 const userEmailDisplay = document.getElementById('user-email-display');
@@ -120,7 +119,7 @@ let settings = JSON.parse(localStorage.getItem('settings')) || {
 };
 let currentUser = null;
 let isGuestMode = false;
-let isPWA = false; // דגל חדש לזיהוי האם האתר רץ כ-PWA
+let isPWA = false;
 
 // --- פונקציות עזר כלליות ---
 function showPage(pageToShow) {
@@ -138,7 +137,6 @@ function showMessage(element, text, type) {
     }, 5000);
 }
 
-// עדכון נושא האתר
 function applySettings() {
     const root = document.documentElement;
     root.style.setProperty('--main-color', settings.mainColor);
@@ -161,7 +159,6 @@ function applySettings() {
     document.querySelector(`input[name="font"][value="${settings.font}"]`).checked = true;
 }
 
-// שמירת ההגדרות ב-LocalStorage
 function saveSettings() {
     localStorage.setItem('settings', JSON.stringify(settings));
 }
@@ -176,12 +173,10 @@ async function loadUserData() {
         console.log("Loading user data from Firestore...");
         const userId = currentUser.uid;
 
-        // טעינת טרנזקציות
         const transactionsRef = collection(db, 'users', userId, 'transactions');
         const transactionsSnapshot = await getDocs(transactionsRef);
         transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        // טעינת יעדים
         const goalsRef = collection(db, 'users', userId, 'goals');
         const goalsSnapshot = await getDocs(goalsRef);
         goals = goalsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -193,7 +188,7 @@ async function loadUserData() {
 
 async function saveTransaction(transaction) {
     if (isGuestMode) {
-        transaction.id = Date.now().toString(); // סימולציה של ID
+        transaction.id = Date.now().toString();
         transactions.push(transaction);
         localStorage.setItem('guestTransactions', JSON.stringify(transactions));
     } else if (currentUser) {
@@ -224,13 +219,14 @@ async function deleteTransaction(transactionId) {
 
 async function addGoal(goal) {
     if (isGuestMode) {
-        goal.id = Date.now().toString(); // סימולציה של ID
+        goal.id = Date.now().toString();
         goals.push(goal);
         localStorage.setItem('guestGoals', JSON.stringify(goals));
     } else if (currentUser) {
         const userId = currentUser.uid;
         try {
-            await addDoc(collection(db, 'users', userId, 'goals'), goal);
+            const docRef = await addDoc(collection(db, 'users', userId, 'goals'), goal);
+            goal.id = docRef.id;
         } catch (e) {
             console.error("Error adding goal: ", e);
         }
@@ -260,14 +256,13 @@ function updateUI() {
     updatePeriodSummary();
 }
 
-// פונקציה להצגת טבלת פעולות
 function renderTransactionsTable(transactionsToRender) {
     transactionsTableBody.innerHTML = '';
     transactionsToRender.forEach(t => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${t.date}</td>
-            <td class="${t.type}">${t.amount.toFixed(2)} ₪</td>
+            <td class="${t.type}">${parseFloat(t.amount).toFixed(2)} ₪</td>
             <td>${t.type === 'income' ? 'הכנסה' : 'הוצאה'}</td>
             <td>${t.description || ''}</td>
             <td>
@@ -278,7 +273,6 @@ function renderTransactionsTable(transactionsToRender) {
     });
 }
 
-// פונקציה להצגת רשימת יעדים
 function renderGoalsList(goalsToRender) {
     goalsList.innerHTML = '';
     goalsToRender.forEach(g => {
@@ -295,7 +289,6 @@ function renderGoalsList(goalsToRender) {
     });
 }
 
-// פונקציה לעדכון יתרות
 function updateBalances() {
     let totalIncome = 0;
     let totalExpense = 0;
@@ -341,10 +334,7 @@ function updatePeriodSummary(filteredTransactions = transactions) {
     }
 }
 
-
 // --- אירועי לחיצות (Event Listeners) ---
-
-// ניווט
 homeButton.addEventListener('click', () => showPage(homePage));
 myMoneyButton.addEventListener('click', () => showPage(budgetManagementPage));
 graphsButton.addEventListener('click', () => showPage(graphsPage));
@@ -356,13 +346,13 @@ settingsButton.addEventListener('click', () => {
     settingsModal.style.display = 'flex';
 });
 
-// כניסה/הרשמה
 startGuestButton.addEventListener('click', () => {
     isGuestMode = true;
     showPage(homePage);
     loadUserData();
     showMessage(authMessage, `ברוך הבא, אורח!`, 'success');
 });
+
 registerButton.addEventListener('click', async () => {
     const email = authEmailInput.value;
     const password = authPasswordInput.value;
@@ -412,7 +402,6 @@ showRegisterFormButton.addEventListener('click', () => {
     loginFields.style.display = 'none';
 });
 
-// פונקציית התנתקות
 logoutButton.addEventListener('click', async () => {
     await signOut(auth);
     showPage(welcomePage);
@@ -420,7 +409,6 @@ logoutButton.addEventListener('click', async () => {
     showMessage(authMessage, 'התנתקת בהצלחה.', 'success');
 });
 
-// פונקציית הצגת סיסמה
 showPasswordButton.addEventListener('click', () => {
     if (userPasswordInput.type === 'password') {
         userPasswordInput.type = 'text';
@@ -431,41 +419,28 @@ showPasswordButton.addEventListener('click', () => {
     }
 });
 
-// פונקציות נוספות: הוספת פעולה, הוספת יעד, סינון וכו'
+// פונקציית הוספת פעולה מתוקנת
 addTransactionButton.addEventListener('click', async () => {
     const type = transactionTypeSelect.value;
     const amount = parseFloat(transactionAmountInput.value);
     const description = transactionDescriptionInput.value;
     const date = transactionDateInput.value;
 
-    if (!amount || !date) {
+    if (!amount || !date || isNaN(amount)) {
         showMessage(transactionMessage, 'אנא מלא סכום ותאריך', 'error');
         return;
     }
 
     const newTransaction = {
-        id: Date.now().toString(), // יצירת ID זמני לפעולות אורח
         type,
         amount,
         description,
         date
     };
-
-    // הוספת הפעולה לרשימה הנוכחית
-    transactions.push(newTransaction);
-    // שמירת הנתונים ב-LocalStorage או ב-Firebase
-    if (isGuestMode) {
-        localStorage.setItem('guestTransactions', JSON.stringify(transactions));
-    } else if (currentUser) {
-        const userId = currentUser.uid;
-        try {
-            const docRef = await addDoc(collection(db, 'users', userId, 'transactions'), newTransaction);
-            newTransaction.id = docRef.id; // עדכון ה-ID מהשרת
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    }
-    updateUI(); // קריאה לפונקציה שמעדכנת את הממשק (כולל הטבלה)
+    
+    // שמירה של הפעולה והמתנה לסיום
+    await saveTransaction(newTransaction);
+    
     showMessage(transactionMessage, 'פעולה נוספה בהצלחה!', 'success');
     transactionAmountInput.value = '';
     transactionDescriptionInput.value = '';
@@ -476,20 +451,19 @@ addGoalButton.addEventListener('click', async () => {
     const name = goalNameInput.value;
     const amount = parseFloat(goalAmountInput.value);
 
-    if (!name || !amount) {
+    if (!name || !amount || isNaN(amount)) {
         showMessage(goalMessage, 'אנא מלא שם וסכום ליעד', 'error');
-        return;
+    } else {
+        const newGoal = {
+            name,
+            amount,
+            saved: 0
+        };
+        await addGoal(newGoal);
+        showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
+        goalNameInput.value = '';
+        goalAmountInput.value = '';
     }
-
-    const newGoal = {
-        name,
-        amount,
-        saved: 0
-    };
-    await addGoal(newGoal);
-    showMessage(goalMessage, 'יעד נוסף בהצלחה!', 'success');
-    goalNameInput.value = '';
-    goalAmountInput.value = '';
 });
 
 document.addEventListener('click', async (e) => {
@@ -523,6 +497,7 @@ filterButton.addEventListener('click', () => {
     renderTransactionsTable(filtered);
     updatePeriodSummary(filtered);
 });
+
 resetFilterButton.addEventListener('click', () => {
     renderTransactionsTable(transactions);
     updatePeriodSummary(transactions);
@@ -588,7 +563,6 @@ enableNotificationsButton.addEventListener('click', () => {
             if (permission === 'granted') {
                 notificationStatus.textContent = 'התראות אושרו בהצלחה! 🎉';
                 enableNotificationsButton.style.display = 'none';
-                // ניתן לשלוח התראת מבחן
                 new Notification('הכסף שלי', { body: 'התראות אפליקציה הופעלו בהצלחה!' });
             } else {
                 notificationStatus.textContent = 'התראות נדחו או לא ניתנו. 😔';
