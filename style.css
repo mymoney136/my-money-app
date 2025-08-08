@@ -38,7 +38,6 @@
 .light-theme .nav-button.active { background-color: var(--primary-color); color: white; }
 .light-theme .logo-desktop { color: black; }
 
-
 /* גופנים ואיפוס CSS */
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Poppins:wght@300;400;500;700&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -132,7 +131,7 @@ body {
     padding: 10px 5px; border-radius: 10px; display: flex; flex-direction: column;
     align-items: center; gap: 5px; transition: background-color 0.2s ease, transform 0.2s ease;
 }
-.nav-button img { width: 24px; height: 24px; }
+.nav-button .emoji { font-size: 1.5rem; }
 .nav-button:hover { transform: scale(1.05); }
 
 /* אלמנטים של טופס */
@@ -150,13 +149,13 @@ body {
 .button.secondary { background-color: var(--secondary-color); color: white; }
 .button.danger { background-color: #e74c3c; color: white; }
 .button.google { background-color: white; color: #444; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.button.google img { width: 20px; }
+.button.google .emoji { font-size: 1.2rem; }
 .button:hover { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); }
 
 /* מסגרות ספציפיות */
 .welcome-container { padding: 30px; text-align: center; display: flex; flex-direction: column; gap: 20px; }
 .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.app-logo { width: 50px; height: 50px; }
+.app-emoji { font-size: 3rem; }
 #auth-form-section { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
 .auth-divider { font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); position: relative; text-align: center; }
 .auth-divider::before, .auth-divider::after { content: ''; position: absolute; top: 50%; width: 30%; height: 1px; background: rgba(255, 255, 255, 0.3); }
@@ -252,10 +251,7 @@ html[dir="rtl"] .auth-divider::after { left: 0; right: auto; }
         font-weight: 700;
         margin-bottom: 20px;
     }
-    .logo-desktop img {
-        width: 30px;
-        height: 30px;
-    }
+    .logo-desktop .emoji { font-size: 1.8rem; }
     .nav-button {
         flex-direction: row;
         justify-content: flex-start;
@@ -264,7 +260,7 @@ html[dir="rtl"] .auth-divider::after { left: 0; right: auto; }
         font-size: 1rem;
         padding: 12px 15px;
     }
-    .nav-button img { width: 20px; height: 20px; }
+    .nav-button .emoji { font-size: 1.2rem; }
     .page {
         position: relative;
         left: 0;
